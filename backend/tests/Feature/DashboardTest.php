@@ -16,7 +16,7 @@ class DashboardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_dashboard_shows_company_totals_and_recent_movements(): void
+    public function test_dashboard_shows_company_totals_recent_counts_divergences_and_movements(): void
     {
         $company = Company::create([
             'name' => 'Counter Demo',
@@ -56,11 +56,21 @@ class DashboardTest extends TestCase
             'current_quantity' => 12,
         ]);
 
-        InventoryCount::create([
+        $count = InventoryCount::create([
             'company_id' => $company->id,
             'created_by' => $user->id,
             'title' => 'Contagem inicial',
             'status' => 'open',
+        ]);
+
+        $count->items()->create([
+            'product_id' => $product->id,
+            'counted_by' => $user->id,
+            'system_quantity' => 5,
+            'counted_quantity' => 3,
+            'difference' => -2,
+            'sync_status' => 'synced',
+            'counted_at' => now(),
         ]);
 
         StockMovement::create([
@@ -82,7 +92,12 @@ class DashboardTest extends TestCase
             ->assertSee('Categorias')
             ->assertSee('Fornecedores')
             ->assertSee('Contagens abertas')
+            ->assertSee('Faltas físicas')
+            ->assertSee('Contagens recentes')
+            ->assertSee('Contagem inicial')
+            ->assertSee('Movimentações recentes')
             ->assertSee('Notebook')
+            ->assertSee('Entrada')
             ->assertSee('Administrador');
     }
 }
