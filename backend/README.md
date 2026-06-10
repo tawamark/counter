@@ -14,6 +14,8 @@ O projeto usa Laravel como base da aplicação web, da API REST e das regras de 
 - npm
 - Vite
 - Tailwind CSS
+- Alpine.js
+- Lucide Icons
 
 ## Documentação do Projeto
 
