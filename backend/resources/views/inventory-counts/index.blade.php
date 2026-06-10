@@ -44,7 +44,7 @@
                         @foreach ($counts as $count)
                             <tr>
                                 <td class="px-4 py-3 font-medium">{{ $count->title }}</td>
-                                <td class="px-4 py-3 text-[#6f6f6f]">{{ ['open' => 'Aberta', 'finished' => 'Finalizada', 'approved' => 'Aprovada'][$count->status] ?? $count->status }}</td>
+                                <td class="px-4 py-3 text-[#6f6f6f]">{{ ['open' => 'Aberta', 'in_progress' => 'Em andamento', 'finished' => 'Finalizada', 'approved' => 'Aprovada'][$count->status] ?? $count->status }}</td>
                                 <td class="px-4 py-3 text-[#6f6f6f]">{{ $count->items_count }}</td>
                                 <td class="px-4 py-3 text-[#6f6f6f]">{{ $count->creator?->name ?? 'Usuário removido' }}</td>
                                 <td class="px-4 py-3 text-[#6f6f6f]">{{ $count->started_at?->format('d/m/Y H:i') ?? '-' }}</td>

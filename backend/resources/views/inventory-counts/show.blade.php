@@ -9,7 +9,7 @@
             <p class="mt-1 text-sm text-[#6f6f6f]">Saldo congelado em {{ $count->started_at?->format('d/m/Y H:i') ?? '-' }}.</p>
         </div>
         <span class="inline-flex w-fit rounded-full bg-orange-50 px-3 py-1 text-sm font-medium text-counter-primary">
-            {{ ['open' => 'Aberta', 'finished' => 'Finalizada', 'approved' => 'Aprovada'][$count->status] ?? $count->status }}
+            {{ ['open' => 'Aberta', 'in_progress' => 'Em andamento', 'finished' => 'Finalizada', 'approved' => 'Aprovada'][$count->status] ?? $count->status }}
         </span>
     </div>
 
@@ -30,13 +30,21 @@
         </div>
         <div class="rounded-lg border border-[#e5e0dc] bg-counter-bg p-4 shadow-sm">
             <p class="text-sm text-[#6f6f6f]">Status</p>
-            <p class="mt-1 text-lg font-semibold">{{ ['open' => 'Aberta', 'finished' => 'Finalizada', 'approved' => 'Aprovada'][$count->status] ?? $count->status }}</p>
+            <p class="mt-1 text-lg font-semibold">{{ ['open' => 'Aberta', 'in_progress' => 'Em andamento', 'finished' => 'Finalizada', 'approved' => 'Aprovada'][$count->status] ?? $count->status }}</p>
         </div>
     </section>
 
-    <section class="rounded-lg border border-[#e5e0dc] bg-counter-bg shadow-sm">
+    <form method="POST" action="{{ route('inventory-counts.items.update', $count) }}" class="rounded-lg border border-[#e5e0dc] bg-counter-bg shadow-sm">
+        @csrf
+
+        @error('items')
+            <div class="border-b border-[#e5e0dc] px-4 py-3 text-sm text-red-600">
+                {{ $message }}
+            </div>
+        @enderror
+
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[780px] text-left text-sm">
+            <table class="w-full min-w-[900px] text-left text-sm">
                 <thead class="bg-[#f7f5f3] text-xs uppercase text-[#6f6f6f]">
                     <tr>
                         <th class="px-4 py-3 font-semibold">Produto</th>
@@ -44,6 +52,7 @@
                         <th class="px-4 py-3 font-semibold">Saldo do sistema</th>
                         <th class="px-4 py-3 font-semibold">Quantidade contada</th>
                         <th class="px-4 py-3 font-semibold">Diferença</th>
+                        <th class="px-4 py-3 font-semibold">Contado por</th>
                         <th class="px-4 py-3 font-semibold">Sincronização</th>
                     </tr>
                 </thead>
@@ -53,13 +62,30 @@
                             <td class="px-4 py-3 font-medium">{{ $item->product?->name ?? 'Produto removido' }}</td>
                             <td class="px-4 py-3 text-[#6f6f6f]">{{ $item->product?->sku ?? '-' }}</td>
                             <td class="px-4 py-3 text-[#6f6f6f]">{{ number_format((float) $item->system_quantity, 3, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-[#6f6f6f]">{{ $item->counted_quantity === null ? '-' : number_format((float) $item->counted_quantity, 3, ',', '.') }}</td>
+                            <td class="px-4 py-3">
+                                <input type="hidden" name="items[{{ $loop->index }}][id]" value="{{ $item->id }}">
+                                <input name="items[{{ $loop->index }}][counted_quantity]" type="number" value="{{ old("items.{$loop->index}.counted_quantity", $item->counted_quantity) }}" min="0" step="0.001" class="block w-32 rounded-md border border-[#d8d2cc] px-3 py-2 text-sm outline-none transition focus:border-counter-primary focus:ring-2 focus:ring-orange-100" @disabled(in_array($count->status, ['finished', 'approved'], true))>
+                                @error("items.{$loop->index}.counted_quantity")
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </td>
                             <td class="px-4 py-3 text-[#6f6f6f]">{{ number_format((float) $item->difference, 3, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-[#6f6f6f]">{{ $item->counter?->name ?? '-' }}</td>
                             <td class="px-4 py-3 text-[#6f6f6f]">{{ ['pending' => 'Pendente', 'synced' => 'Sincronizada', 'error' => 'Erro'][$item->sync_status] ?? $item->sync_status }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
-    </section>
+
+        <div class="flex flex-col-reverse gap-3 border-t border-[#e5e0dc] px-4 py-3 sm:flex-row sm:justify-end">
+            <a href="{{ route('inventory-counts.index') }}" class="inline-flex items-center justify-center rounded-md border border-[#e5e0dc] px-4 py-2.5 text-sm font-semibold text-[#6f6f6f] transition hover:bg-[#f7f5f3]">
+                Voltar
+            </a>
+            <button type="submit" @disabled(in_array($count->status, ['finished', 'approved'], true)) class="inline-flex items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16] disabled:cursor-not-allowed disabled:bg-[#d8d2cc]">
+                <i data-lucide="save" class="size-4"></i>
+                Salvar contagem
+            </button>
+        </div>
+    </form>
 </x-layouts.app>

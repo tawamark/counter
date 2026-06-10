@@ -116,6 +116,131 @@ class InventoryCountTest extends TestCase
             ->assertNotFound();
     }
 
+    public function test_user_can_update_counted_quantities_and_differences(): void
+    {
+        [$user, $product] = $this->createUserAndProduct(10);
+
+        $count = InventoryCount::create([
+            'company_id' => $user->company_id,
+            'created_by' => $user->id,
+            'title' => 'Contagem semanal',
+            'status' => 'open',
+            'started_at' => now(),
+        ]);
+
+        $item = $count->items()->create([
+            'product_id' => $product->id,
+            'system_quantity' => 10,
+            'difference' => 0,
+            'sync_status' => 'pending',
+        ]);
+
+        $this->actingAs($user)
+            ->post("/inventory-counts/{$count->id}/items", [
+                'items' => [
+                    [
+                        'id' => $item->id,
+                        'counted_quantity' => 7,
+                    ],
+                ],
+            ])
+            ->assertRedirect("/inventory-counts/{$count->id}");
+
+        $this->assertDatabaseHas('inventory_counts', [
+            'id' => $count->id,
+            'status' => 'in_progress',
+        ]);
+
+        $this->assertDatabaseHas('inventory_count_items', [
+            'id' => $item->id,
+            'counted_by' => $user->id,
+            'counted_quantity' => 7,
+            'difference' => -3,
+            'sync_status' => 'synced',
+        ]);
+    }
+
+    public function test_user_can_clear_counted_quantity(): void
+    {
+        [$user, $product] = $this->createUserAndProduct(10);
+
+        $count = InventoryCount::create([
+            'company_id' => $user->company_id,
+            'created_by' => $user->id,
+            'title' => 'Contagem semanal',
+            'status' => 'in_progress',
+            'started_at' => now(),
+        ]);
+
+        $item = $count->items()->create([
+            'product_id' => $product->id,
+            'counted_by' => $user->id,
+            'system_quantity' => 10,
+            'counted_quantity' => 7,
+            'difference' => -3,
+            'sync_status' => 'synced',
+            'counted_at' => now(),
+        ]);
+
+        $this->actingAs($user)
+            ->post("/inventory-counts/{$count->id}/items", [
+                'items' => [
+                    [
+                        'id' => $item->id,
+                        'counted_quantity' => null,
+                    ],
+                ],
+            ])
+            ->assertRedirect("/inventory-counts/{$count->id}");
+
+        $item->refresh();
+
+        $this->assertNull($item->counted_by);
+        $this->assertNull($item->counted_quantity);
+        $this->assertNull($item->counted_at);
+        $this->assertSame('0.000', $item->difference);
+        $this->assertSame('pending', $item->sync_status);
+    }
+
+    public function test_user_cannot_update_finished_inventory_count(): void
+    {
+        [$user, $product] = $this->createUserAndProduct(10);
+
+        $count = InventoryCount::create([
+            'company_id' => $user->company_id,
+            'created_by' => $user->id,
+            'title' => 'Contagem finalizada',
+            'status' => 'finished',
+            'started_at' => now(),
+            'finished_at' => now(),
+        ]);
+
+        $item = $count->items()->create([
+            'product_id' => $product->id,
+            'system_quantity' => 10,
+            'difference' => 0,
+            'sync_status' => 'pending',
+        ]);
+
+        $this->actingAs($user)
+            ->post("/inventory-counts/{$count->id}/items", [
+                'items' => [
+                    [
+                        'id' => $item->id,
+                        'counted_quantity' => 7,
+                    ],
+                ],
+            ])
+            ->assertSessionHasErrors('items');
+
+        $this->assertDatabaseHas('inventory_count_items', [
+            'id' => $item->id,
+            'counted_quantity' => null,
+            'difference' => 0,
+            'sync_status' => 'pending',
+        ]);
+    }
+
     private function createUserAndProduct(float $quantity, string $companyName = 'Counter Demo', string $email = 'admin@counter.test'): array
     {
         $company = Company::create([

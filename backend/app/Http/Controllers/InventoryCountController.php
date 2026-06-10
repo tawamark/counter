@@ -53,11 +53,32 @@ class InventoryCountController extends Controller
     {
         abort_unless($inventoryCount->company_id === auth()->user()->company_id, 404);
 
-        $inventoryCount->load(['creator', 'items.product']);
+        $inventoryCount->load(['creator', 'items.product', 'items.counter']);
 
         return view('inventory-counts.show', [
             'count' => $inventoryCount,
         ]);
+    }
+
+    public function updateItems(Request $request, InventoryCount $inventoryCount, InventoryCountService $service): RedirectResponse
+    {
+        abort_unless($inventoryCount->company_id === auth()->user()->company_id, 404);
+
+        $itemIds = $inventoryCount->items()->pluck('id')->all();
+
+        $data = $request->validate([
+            'items' => ['required', 'array'],
+            'items.*.id' => ['required', 'integer', Rule::in($itemIds)],
+            'items.*.counted_quantity' => ['nullable', 'numeric', 'min:0', 'max:999999999.999'],
+        ]);
+
+        $items = collect($data['items'])->keyBy('id')->all();
+
+        $service->updateItems(auth()->user(), $inventoryCount, $items);
+
+        return redirect()
+            ->route('inventory-counts.show', $inventoryCount)
+            ->with('status', 'Itens da contagem atualizados com sucesso.');
     }
 
     private function products()
