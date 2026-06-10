@@ -43,8 +43,8 @@
     }
 
     .counter-option-trigger:focus {
-        border-color: #FC6F20;
-        box-shadow: 0 0 0 3px rgb(252 111 32 / 12%);
+        border-color: #c7c0ba;
+        box-shadow: 0 0 0 3px rgb(50 50 50 / 6%);
     }
 
     .counter-option-menu {
