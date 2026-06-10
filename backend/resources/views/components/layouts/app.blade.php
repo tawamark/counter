@@ -18,6 +18,10 @@
                         <i data-lucide="layout-dashboard" class="size-4"></i>
                         Dashboard
                     </a>
+                    <a href="{{ route('products.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('products.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                        <i data-lucide="package" class="size-4"></i>
+                        Produtos
+                    </a>
                     <a href="{{ route('categories.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('categories.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
                         <i data-lucide="tags" class="size-4"></i>
                         Categorias
