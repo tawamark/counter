@@ -34,6 +34,10 @@
                         <i data-lucide="arrow-down-up" class="size-4"></i>
                         Movimentações
                     </a>
+                    <a href="{{ route('inventory-counts.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('inventory-counts.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                        <i data-lucide="clipboard-list" class="size-4"></i>
+                        Contagens
+                    </a>
                 </nav>
             </aside>
 
