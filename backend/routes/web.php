@@ -19,14 +19,26 @@ Route::middleware('guest')->group(function (): void {
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
-    Route::resource('categories', CategoryController::class)->except(['show']);
-    Route::get('/divergences', [DivergenceController::class, 'index'])->name('divergences.index');
-    Route::post('/inventory-counts/{inventoryCount}/approve', [InventoryCountController::class, 'approve'])->name('inventory-counts.approve');
-    Route::post('/inventory-counts/{inventoryCount}/finish', [InventoryCountController::class, 'finish'])->name('inventory-counts.finish');
-    Route::post('/inventory-counts/{inventoryCount}/items', [InventoryCountController::class, 'updateItems'])->name('inventory-counts.items.update');
-    Route::resource('inventory-counts', InventoryCountController::class)->only(['index', 'create', 'store', 'show']);
-    Route::resource('products', ProductController::class)->except(['show']);
-    Route::resource('stock-movements', StockMovementController::class)->only(['index', 'create', 'store']);
-    Route::resource('suppliers', SupplierController::class)->except(['show']);
+
+    Route::middleware('role:admin')->group(function (): void {
+        Route::resource('categories', CategoryController::class)->except(['show']);
+        Route::get('/divergences', [DivergenceController::class, 'index'])->name('divergences.index');
+        Route::post('/inventory-counts/{inventoryCount}/approve', [InventoryCountController::class, 'approve'])->name('inventory-counts.approve');
+        Route::post('/inventory-counts/{inventoryCount}/finish', [InventoryCountController::class, 'finish'])->name('inventory-counts.finish');
+        Route::resource('inventory-counts', InventoryCountController::class)->only(['create', 'store']);
+        Route::resource('products', ProductController::class)->except(['index', 'show']);
+        Route::resource('suppliers', SupplierController::class)->except(['show']);
+    });
+
+    Route::middleware('role:admin,counter')->group(function (): void {
+        Route::post('/inventory-counts/{inventoryCount}/items', [InventoryCountController::class, 'updateItems'])->name('inventory-counts.items.update');
+        Route::resource('inventory-counts', InventoryCountController::class)->only(['index', 'show']);
+    });
+
+    Route::middleware('role:admin,stockist')->group(function (): void {
+        Route::resource('products', ProductController::class)->only(['index']);
+        Route::resource('stock-movements', StockMovementController::class)->only(['index', 'create', 'store']);
+    });
+
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });

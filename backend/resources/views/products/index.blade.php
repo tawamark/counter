@@ -4,10 +4,12 @@
             <h1 class="text-2xl font-semibold">Produtos</h1>
             <p class="mt-1 text-sm text-[#6f6f6f]">Gerencie os itens do estoque com SKU, código de barras, preços e saldo atual.</p>
         </div>
-        <a href="{{ route('products.create') }}" class="inline-flex items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
-            <i data-lucide="plus" class="size-4"></i>
-            Novo produto
-        </a>
+        @if (auth()->user()->role === 'admin')
+            <a href="{{ route('products.create') }}" class="inline-flex items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
+                <i data-lucide="plus" class="size-4"></i>
+                Novo produto
+            </a>
+        @endif
     </div>
 
     @if (session('status'))
@@ -28,10 +30,12 @@
                 <i data-lucide="package" class="size-10 text-counter-primary"></i>
                 <h2 class="mt-4 text-lg font-semibold">Nenhum produto cadastrado</h2>
                 <p class="mt-1 max-w-sm text-sm text-[#6f6f6f]">Cadastre produtos para registrar movimentações, contagens e divergências.</p>
-                <a href="{{ route('products.create') }}" class="mt-5 inline-flex items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
-                    <i data-lucide="plus" class="size-4"></i>
-                    Cadastrar produto
-                </a>
+                @if (auth()->user()->role === 'admin')
+                    <a href="{{ route('products.create') }}" class="mt-5 inline-flex items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
+                        <i data-lucide="plus" class="size-4"></i>
+                        Cadastrar produto
+                    </a>
+                @endif
             </div>
         @else
             <div class="overflow-x-auto">
@@ -44,7 +48,9 @@
                             <th class="px-4 py-3 font-semibold">Fornecedor</th>
                             <th class="px-4 py-3 font-semibold">Quantidade</th>
                             <th class="px-4 py-3 font-semibold">Preço venda</th>
-                            <th class="px-4 py-3 text-right font-semibold">Ações</th>
+                            @if (auth()->user()->role === 'admin')
+                                <th class="px-4 py-3 text-right font-semibold">Ações</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[#e5e0dc]">
@@ -59,20 +65,22 @@
                                 <td class="px-4 py-3 text-[#6f6f6f]">{{ $product->supplier?->name ?? 'Sem fornecedor' }}</td>
                                 <td class="px-4 py-3 text-[#6f6f6f]">{{ number_format((float) $product->current_quantity, 3, ',', '.') }} {{ $product->unit }}</td>
                                 <td class="px-4 py-3 text-[#6f6f6f]">R$ {{ number_format((float) $product->sale_price, 2, ',', '.') }}</td>
-                                <td class="px-4 py-3">
-                                    <div class="flex justify-end gap-2">
-                                        <a href="{{ route('products.edit', $product) }}" class="inline-flex size-9 items-center justify-center rounded-md border border-[#e5e0dc] text-[#6f6f6f] transition hover:bg-orange-50 hover:text-counter-primary" title="Editar">
-                                            <i data-lucide="pencil" class="size-4"></i>
-                                        </a>
-                                        <form method="POST" action="{{ route('products.destroy', $product) }}" onsubmit="return confirm('Deseja excluir este produto?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="inline-flex size-9 items-center justify-center rounded-md border border-[#e5e0dc] text-[#6f6f6f] transition hover:bg-red-50 hover:text-red-600" title="Excluir">
-                                                <i data-lucide="trash-2" class="size-4"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
+                                @if (auth()->user()->role === 'admin')
+                                    <td class="px-4 py-3">
+                                        <div class="flex justify-end gap-2">
+                                            <a href="{{ route('products.edit', $product) }}" class="inline-flex size-9 items-center justify-center rounded-md border border-[#e5e0dc] text-[#6f6f6f] transition hover:bg-orange-50 hover:text-counter-primary" title="Editar">
+                                                <i data-lucide="pencil" class="size-4"></i>
+                                            </a>
+                                            <form method="POST" action="{{ route('products.destroy', $product) }}" onsubmit="return confirm('Deseja excluir este produto?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="inline-flex size-9 items-center justify-center rounded-md border border-[#e5e0dc] text-[#6f6f6f] transition hover:bg-red-50 hover:text-red-600" title="Excluir">
+                                                    <i data-lucide="trash-2" class="size-4"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>

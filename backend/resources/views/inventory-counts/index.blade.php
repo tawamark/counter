@@ -4,10 +4,12 @@
             <h1 class="text-2xl font-semibold">Contagens</h1>
             <p class="mt-1 text-sm text-[#6f6f6f]">Crie conferências de estoque e acompanhe os produtos vinculados.</p>
         </div>
-        <a href="{{ route('inventory-counts.create') }}" class="inline-flex items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
-            <i data-lucide="plus" class="size-4"></i>
-            Nova contagem
-        </a>
+        @if (auth()->user()->role === 'admin')
+            <a href="{{ route('inventory-counts.create') }}" class="inline-flex items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
+                <i data-lucide="plus" class="size-4"></i>
+                Nova contagem
+            </a>
+        @endif
     </div>
 
     @if (session('status'))
@@ -22,10 +24,12 @@
                 <i data-lucide="clipboard-list" class="size-10 text-counter-primary"></i>
                 <h2 class="mt-4 text-lg font-semibold">Nenhuma contagem cadastrada</h2>
                 <p class="mt-1 max-w-sm text-sm text-[#6f6f6f]">Crie uma contagem para congelar o saldo atual dos produtos selecionados.</p>
-                <a href="{{ route('inventory-counts.create') }}" class="mt-5 inline-flex items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
-                    <i data-lucide="plus" class="size-4"></i>
-                    Criar contagem
-                </a>
+                @if (auth()->user()->role === 'admin')
+                    <a href="{{ route('inventory-counts.create') }}" class="mt-5 inline-flex items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
+                        <i data-lucide="plus" class="size-4"></i>
+                        Criar contagem
+                    </a>
+                @endif
             </div>
         @else
             <div class="overflow-x-auto">

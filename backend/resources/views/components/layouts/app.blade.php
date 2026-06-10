@@ -18,30 +18,45 @@
                         <i data-lucide="layout-dashboard" class="size-4"></i>
                         Dashboard
                     </a>
-                    <a href="{{ route('products.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('products.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
-                        <i data-lucide="package" class="size-4"></i>
-                        Produtos
-                    </a>
-                    <a href="{{ route('categories.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('categories.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
-                        <i data-lucide="tags" class="size-4"></i>
-                        Categorias
-                    </a>
-                    <a href="{{ route('suppliers.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('suppliers.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
-                        <i data-lucide="truck" class="size-4"></i>
-                        Fornecedores
-                    </a>
-                    <a href="{{ route('stock-movements.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('stock-movements.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
-                        <i data-lucide="arrow-down-up" class="size-4"></i>
-                        Movimentações
-                    </a>
-                    <a href="{{ route('inventory-counts.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('inventory-counts.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
-                        <i data-lucide="clipboard-list" class="size-4"></i>
-                        Contagens
-                    </a>
-                    <a href="{{ route('divergences.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('divergences.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
-                        <i data-lucide="scale" class="size-4"></i>
-                        Divergências
-                    </a>
+
+                    @if (in_array(auth()->user()->role, ['admin', 'stockist'], true))
+                        <a href="{{ route('products.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('products.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                            <i data-lucide="package" class="size-4"></i>
+                            Produtos
+                        </a>
+                    @endif
+
+                    @if (auth()->user()->role === 'admin')
+                        <a href="{{ route('categories.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('categories.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                            <i data-lucide="tags" class="size-4"></i>
+                            Categorias
+                        </a>
+                        <a href="{{ route('suppliers.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('suppliers.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                            <i data-lucide="truck" class="size-4"></i>
+                            Fornecedores
+                        </a>
+                    @endif
+
+                    @if (in_array(auth()->user()->role, ['admin', 'stockist'], true))
+                        <a href="{{ route('stock-movements.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('stock-movements.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                            <i data-lucide="arrow-down-up" class="size-4"></i>
+                            Movimentações
+                        </a>
+                    @endif
+
+                    @if (in_array(auth()->user()->role, ['admin', 'counter'], true))
+                        <a href="{{ route('inventory-counts.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('inventory-counts.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                            <i data-lucide="clipboard-list" class="size-4"></i>
+                            Contagens
+                        </a>
+                    @endif
+
+                    @if (auth()->user()->role === 'admin')
+                        <a href="{{ route('divergences.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('divergences.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                            <i data-lucide="scale" class="size-4"></i>
+                            Divergências
+                        </a>
+                    @endif
                 </nav>
             </aside>
 
