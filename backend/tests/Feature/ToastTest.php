@@ -48,8 +48,32 @@ class ToastTest extends TestCase
             ->actingAs($user)
             ->delete("/categories/{$category->id}")
             ->assertOk()
-            ->assertSee('Atenção')
+            ->assertSee('Erro')
             ->assertSee('Não é possível excluir uma categoria com produtos vinculados.');
+    }
+
+    public function test_info_flash_message_is_shown_as_global_toast(): void
+    {
+        $user = $this->createAdmin();
+
+        $this->actingAs($user)
+            ->withSession(['info' => 'Sincronização disponível.'])
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertSee('Informação')
+            ->assertSee('Sincronização disponível.');
+    }
+
+    public function test_warning_flash_message_is_shown_as_global_toast(): void
+    {
+        $user = $this->createAdmin();
+
+        $this->actingAs($user)
+            ->withSession(['warning' => 'Revise os dados antes de continuar.'])
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertSee('Aviso')
+            ->assertSee('Revise os dados antes de continuar.');
     }
 
     private function createAdmin(): User

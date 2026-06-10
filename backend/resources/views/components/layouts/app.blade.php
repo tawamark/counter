@@ -8,8 +8,13 @@
     </head>
     <body class="min-h-screen bg-[#f7f5f3] text-counter-text antialiased">
         @php
-            $toastMessage = session('status') ?? session('error') ?? $errors->first('count') ?? $errors->first('items');
-            $toastType = session('error') || $errors->has('count') || $errors->has('items') ? 'error' : 'success';
+            $toastMessage = session('status') ?? session('error') ?? session('info') ?? session('warning') ?? $errors->first('count') ?? $errors->first('items');
+            $toastType = match (true) {
+                session()->has('error') || $errors->has('count') || $errors->has('items') => 'error',
+                session()->has('warning') => 'warning',
+                session()->has('info') => 'info',
+                default => 'success',
+            };
         @endphp
 
         @if ($toastMessage)
