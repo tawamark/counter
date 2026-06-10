@@ -219,14 +219,14 @@ const createCounterLoader = () => {
 
             window.setTimeout(() => {
                 if (shouldLoadLink(anchor, event)) {
-                    start();
+                    start({ skeleton: false });
                 }
             }, 0);
         });
 
         document.addEventListener('submit', (event) => {
             if (!event.defaultPrevented && !event.target.hasAttribute('data-no-loader')) {
-                start();
+                start({ skeleton: false });
             }
         });
 
@@ -234,7 +234,7 @@ const createCounterLoader = () => {
 
         HTMLFormElement.prototype.submit = function submit() {
             if (!this.hasAttribute('data-no-loader')) {
-                start();
+                start({ skeleton: false });
             }
 
             return nativeSubmit.call(this);
