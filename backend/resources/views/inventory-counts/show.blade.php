@@ -127,7 +127,7 @@
                 @if (! in_array($count->status, ['finished', 'approved'], true))
                     <form method="POST" action="{{ route('inventory-counts.finish', $count) }}">
                         @csrf
-                        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-md border border-[#e5e0dc] px-4 py-2.5 text-sm font-semibold text-[#323232] transition hover:bg-[#f7f5f3]">
+                        <button type="button" x-on:click="$dispatch('open-confirm-modal', { title: 'Finalizar contagem', message: 'Após finalizar, os itens não poderão ser alterados antes da aprovação. Deseja continuar?', confirmText: 'Finalizar', tone: 'primary', onConfirm: () => $el.closest('form').submit() })" class="inline-flex w-full items-center justify-center gap-2 rounded-md border border-[#e5e0dc] px-4 py-2.5 text-sm font-semibold text-[#323232] transition hover:bg-[#f7f5f3]">
                             <i data-lucide="check" class="size-4"></i>
                             Finalizar contagem
                         </button>
@@ -137,7 +137,7 @@
                 @if ($count->status === 'finished')
                     <form method="POST" action="{{ route('inventory-counts.approve', $count) }}">
                         @csrf
-                        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
+                        <button type="button" x-on:click="$dispatch('open-confirm-modal', { title: 'Aprovar ajustes', message: 'A aprovação atualizará o estoque com as quantidades contadas e gerará movimentações de ajuste. Deseja continuar?', confirmText: 'Aprovar', tone: 'primary', onConfirm: () => $el.closest('form').submit() })" class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
                             <i data-lucide="badge-check" class="size-4"></i>
                             Aprovar ajustes
                         </button>

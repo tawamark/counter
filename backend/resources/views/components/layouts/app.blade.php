@@ -21,6 +21,8 @@
             <x-toast :message="$toastMessage" :type="$toastType" />
         @endif
 
+        <x-confirm-modal />
+
         <div x-data="{ mobileMenuOpen: false }" x-on:keydown.escape.window="mobileMenuOpen = false" class="min-h-screen lg:flex">
             <aside class="hidden w-64 border-r border-[#e5e0dc] bg-counter-bg lg:block">
                 <div class="flex h-16 items-center border-b border-[#e5e0dc] px-6">

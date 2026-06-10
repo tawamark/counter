@@ -59,10 +59,10 @@
                                             <a href="{{ route('products.edit', $product) }}" class="inline-flex size-9 items-center justify-center rounded-md border border-[#e5e0dc] text-[#6f6f6f] transition hover:bg-orange-50 hover:text-counter-primary" title="Editar">
                                                 <i data-lucide="pencil" class="size-4"></i>
                                             </a>
-                                            <form method="POST" action="{{ route('products.destroy', $product) }}" onsubmit="return confirm('Deseja excluir este produto?')">
+                                            <form method="POST" action="{{ route('products.destroy', $product) }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="inline-flex size-9 items-center justify-center rounded-md border border-[#e5e0dc] text-[#6f6f6f] transition hover:bg-red-50 hover:text-red-600" title="Excluir">
+                                                <button type="button" x-on:click="$dispatch('open-confirm-modal', { title: 'Excluir produto', message: 'Esta ação não pode ser desfeita. Deseja excluir este produto?', confirmText: 'Excluir', tone: 'danger', onConfirm: () => $el.closest('form').submit() })" class="inline-flex size-9 items-center justify-center rounded-md border border-[#e5e0dc] text-[#6f6f6f] transition hover:bg-red-50 hover:text-red-600" title="Excluir">
                                                     <i data-lucide="trash-2" class="size-4"></i>
                                                 </button>
                                             </form>

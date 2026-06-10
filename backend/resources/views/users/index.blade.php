@@ -45,10 +45,10 @@
                                         <a href="{{ route('users.edit', $user) }}" class="inline-flex size-9 items-center justify-center rounded-md border border-[#e5e0dc] text-[#6f6f6f] transition hover:bg-orange-50 hover:text-counter-primary" title="Editar">
                                             <i data-lucide="pencil" class="size-4"></i>
                                         </a>
-                                        <form method="POST" action="{{ route('users.destroy', $user) }}" onsubmit="return confirm('Deseja excluir este usuário?')">
+                                        <form method="POST" action="{{ route('users.destroy', $user) }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" @disabled($user->id === auth()->id()) class="inline-flex size-9 items-center justify-center rounded-md border border-[#e5e0dc] text-[#6f6f6f] transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:bg-[#f7f5f3] disabled:text-[#c7c0ba]" title="Excluir">
+                                            <button type="button" x-on:click="$dispatch('open-confirm-modal', { title: 'Excluir usuário', message: 'Esta ação não pode ser desfeita. Deseja excluir este usuário?', confirmText: 'Excluir', tone: 'danger', onConfirm: () => $el.closest('form').submit() })" @disabled($user->id === auth()->id()) class="inline-flex size-9 items-center justify-center rounded-md border border-[#e5e0dc] text-[#6f6f6f] transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:bg-[#f7f5f3] disabled:text-[#c7c0ba]" title="Excluir">
                                                 <i data-lucide="trash-2" class="size-4"></i>
                                             </button>
                                         </form>
