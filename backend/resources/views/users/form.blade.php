@@ -22,12 +22,7 @@
         </div>
 
         <div>
-            <label for="role" class="mb-1 block text-sm font-medium">Perfil</label>
-            <select id="role" name="role" required class="block w-full rounded-md border border-[#d8d2cc] px-3 py-2 text-sm outline-none transition focus:border-counter-primary focus:ring-2 focus:ring-orange-100">
-                <option value="admin" @selected(old('role', $user?->role) === 'admin')>Administrador</option>
-                <option value="stockist" @selected(old('role', $user?->role) === 'stockist')>Estoquista</option>
-                <option value="counter" @selected(old('role', $user?->role) === 'counter')>Contador</option>
-            </select>
+            <x-dropdown-select name="role" label="Perfil" :selected="old('role', $user?->role ?? 'admin')" :options="['admin' => 'Administrador', 'stockist' => 'Estoquista', 'counter' => 'Contador']" />
             @error('role')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
