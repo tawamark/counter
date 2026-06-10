@@ -170,6 +170,9 @@
                     </div>
 
                     <div class="flex items-center gap-3 rounded-md border border-[#e5e0dc] bg-counter-bg px-2 py-1.5 shadow-sm">
+                        <div class="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#f7f5f3] text-sm font-semibold text-[#323232]">
+                            {{ Str::of(auth()->user()->name)->trim()->substr(0, 1)->upper() }}
+                        </div>
                         <div class="hidden text-right sm:block">
                             <p class="text-sm font-medium">{{ auth()->user()->name }}</p>
                             <p class="text-xs text-[#6f6f6f]">{{ auth()->user()->email }}</p>
