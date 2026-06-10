@@ -10,6 +10,10 @@ use Illuminate\Validation\ValidationException;
 
 class InventoryCountService
 {
+    public function __construct(private readonly AuditLogService $auditLogService)
+    {
+    }
+
     public function create(User $user, string $title, array $productIds): InventoryCount
     {
         return DB::transaction(function () use ($user, $title, $productIds): InventoryCount {
@@ -34,6 +38,10 @@ class InventoryCountService
                     'sync_status' => 'pending',
                 ]);
             }
+
+            $this->auditLogService->record($user, 'contagens', 'criou', 'Contagem criada: '.$count->title, $count, [
+                'products_count' => $products->count(),
+            ]);
 
             return $count;
         });
@@ -90,6 +98,8 @@ class InventoryCountService
                 ]);
             }
 
+            $this->auditLogService->record($user, 'contagens', 'alterou', 'Itens da contagem atualizados: '.$count->title, $count);
+
             return $count->refresh();
         });
     }
@@ -120,6 +130,8 @@ class InventoryCountService
             'status' => 'finished',
             'finished_at' => now(),
         ]);
+
+        $this->auditLogService->record($user, 'contagens', 'finalizou', 'Contagem finalizada: '.$count->title, $count);
 
         return $count->refresh();
     }
@@ -158,6 +170,8 @@ class InventoryCountService
                 'status' => 'approved',
                 'approved_at' => now(),
             ]);
+
+            $this->auditLogService->record($user, 'contagens', 'aprovou', 'Contagem aprovada: '.$count->title, $count);
 
             return $count->refresh();
         });

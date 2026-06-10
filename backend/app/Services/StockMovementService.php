@@ -11,6 +11,10 @@ use Illuminate\Validation\ValidationException;
 
 class StockMovementService
 {
+    public function __construct(private readonly AuditLogService $auditLogService)
+    {
+    }
+
     public function register(User $user, Product $product, string $type, float $quantity, ?string $reason = null, ?InventoryCount $inventoryCount = null): StockMovement
     {
         if ($product->company_id !== $user->company_id) {
@@ -31,7 +35,7 @@ class StockMovementService
                 'current_quantity' => $quantityAfter,
             ]);
 
-            return StockMovement::create([
+            $movement = StockMovement::create([
                 'company_id' => $user->company_id,
                 'product_id' => $product->id,
                 'user_id' => $user->id,
@@ -42,6 +46,15 @@ class StockMovementService
                 'quantity_after' => $quantityAfter,
                 'reason' => $reason,
             ]);
+
+            $this->auditLogService->record($user, 'movimentacoes', 'registrou', 'Movimentação registrada para '.$product->name, $movement, [
+                'type' => $type,
+                'quantity' => $quantity,
+                'quantity_before' => $quantityBefore,
+                'quantity_after' => $quantityAfter,
+            ]);
+
+            return $movement;
         });
     }
 

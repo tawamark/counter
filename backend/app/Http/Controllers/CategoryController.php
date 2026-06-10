@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Services\AuditLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -27,7 +28,7 @@ class CategoryController extends Controller
         return view('categories.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, AuditLogService $auditLogService): RedirectResponse
     {
         $data = $request->validate([
             'name' => [
@@ -39,11 +40,13 @@ class CategoryController extends Controller
             'description' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        Category::create([
+        $category = Category::create([
             'company_id' => auth()->user()->company_id,
             'name' => $data['name'],
             'description' => $data['description'] ?? null,
         ]);
+
+        $auditLogService->record(auth()->user(), 'categorias', 'criou', 'Categoria cadastrada: '.$category->name, $category);
 
         return redirect()
             ->route('categories.index')
@@ -59,7 +62,7 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function update(Request $request, Category $category): RedirectResponse
+    public function update(Request $request, Category $category, AuditLogService $auditLogService): RedirectResponse
     {
         $this->authorizeCategory($category);
 
@@ -75,12 +78,14 @@ class CategoryController extends Controller
 
         $category->update($data);
 
+        $auditLogService->record(auth()->user(), 'categorias', 'atualizou', 'Categoria atualizada: '.$category->name, $category);
+
         return redirect()
             ->route('categories.index')
             ->with('status', 'Categoria atualizada com sucesso.');
     }
 
-    public function destroy(Category $category): RedirectResponse
+    public function destroy(Category $category, AuditLogService $auditLogService): RedirectResponse
     {
         $this->authorizeCategory($category);
 
@@ -90,7 +95,11 @@ class CategoryController extends Controller
                 ->with('error', 'Não é possível excluir uma categoria com produtos vinculados.');
         }
 
+        $categoryName = $category->name;
+
         $category->delete();
+
+        $auditLogService->record(auth()->user(), 'categorias', 'excluiu', 'Categoria excluída: '.$categoryName);
 
         return redirect()
             ->route('categories.index')

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Supplier;
+use App\Services\AuditLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -29,13 +30,17 @@ class ProductController extends Controller
         return view('products.create', $this->formOptions());
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, AuditLogService $auditLogService): RedirectResponse
     {
         $data = $this->validateProduct($request);
 
-        Product::create([
+        $product = Product::create([
             'company_id' => auth()->user()->company_id,
             ...$data,
+        ]);
+
+        $auditLogService->record(auth()->user(), 'produtos', 'criou', 'Produto cadastrado: '.$product->name, $product, [
+            'sku' => $product->sku,
         ]);
 
         return redirect()
@@ -53,18 +58,22 @@ class ProductController extends Controller
         ]);
     }
 
-    public function update(Request $request, Product $product): RedirectResponse
+    public function update(Request $request, Product $product, AuditLogService $auditLogService): RedirectResponse
     {
         $this->authorizeProduct($product);
 
         $product->update($this->validateProduct($request, $product));
+
+        $auditLogService->record(auth()->user(), 'produtos', 'atualizou', 'Produto atualizado: '.$product->name, $product, [
+            'sku' => $product->sku,
+        ]);
 
         return redirect()
             ->route('products.index')
             ->with('status', 'Produto atualizado com sucesso.');
     }
 
-    public function destroy(Product $product): RedirectResponse
+    public function destroy(Product $product, AuditLogService $auditLogService): RedirectResponse
     {
         $this->authorizeProduct($product);
 
@@ -74,7 +83,14 @@ class ProductController extends Controller
                 ->with('error', 'Não é possível excluir um produto com movimentações ou contagens vinculadas.');
         }
 
+        $productName = $product->name;
+        $productSku = $product->sku;
+
         $product->delete();
+
+        $auditLogService->record(auth()->user(), 'produtos', 'excluiu', 'Produto excluído: '.$productName, null, [
+            'sku' => $productSku,
+        ]);
 
         return redirect()
             ->route('products.index')

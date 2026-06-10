@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DivergenceController;
@@ -23,6 +24,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     Route::middleware('role:admin')->group(function (): void {
+        Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
         Route::resource('categories', CategoryController::class)->except(['show']);
         Route::get('/divergences', [DivergenceController::class, 'index'])->name('divergences.index');
         Route::get('/reports/divergences.csv', [ReportController::class, 'divergences'])->name('reports.divergences');

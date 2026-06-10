@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Supplier;
+use App\Services\AuditLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -27,14 +28,16 @@ class SupplierController extends Controller
         return view('suppliers.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, AuditLogService $auditLogService): RedirectResponse
     {
         $data = $this->validateSupplier($request);
 
-        Supplier::create([
+        $supplier = Supplier::create([
             'company_id' => auth()->user()->company_id,
             ...$data,
         ]);
+
+        $auditLogService->record(auth()->user(), 'fornecedores', 'criou', 'Fornecedor cadastrado: '.$supplier->name, $supplier);
 
         return redirect()
             ->route('suppliers.index')
@@ -50,18 +53,20 @@ class SupplierController extends Controller
         ]);
     }
 
-    public function update(Request $request, Supplier $supplier): RedirectResponse
+    public function update(Request $request, Supplier $supplier, AuditLogService $auditLogService): RedirectResponse
     {
         $this->authorizeSupplier($supplier);
 
         $supplier->update($this->validateSupplier($request, $supplier));
+
+        $auditLogService->record(auth()->user(), 'fornecedores', 'atualizou', 'Fornecedor atualizado: '.$supplier->name, $supplier);
 
         return redirect()
             ->route('suppliers.index')
             ->with('status', 'Fornecedor atualizado com sucesso.');
     }
 
-    public function destroy(Supplier $supplier): RedirectResponse
+    public function destroy(Supplier $supplier, AuditLogService $auditLogService): RedirectResponse
     {
         $this->authorizeSupplier($supplier);
 
@@ -71,7 +76,11 @@ class SupplierController extends Controller
                 ->with('error', 'Não é possível excluir um fornecedor com produtos vinculados.');
         }
 
+        $supplierName = $supplier->name;
+
         $supplier->delete();
+
+        $auditLogService->record(auth()->user(), 'fornecedores', 'excluiu', 'Fornecedor excluído: '.$supplierName);
 
         return redirect()
             ->route('suppliers.index')

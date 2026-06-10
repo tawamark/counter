@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\AuditLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -26,13 +27,18 @@ class UserController extends Controller
         return view('users.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, AuditLogService $auditLogService): RedirectResponse
     {
         $data = $this->validateUser($request);
 
-        User::create([
+        $user = User::create([
             'company_id' => auth()->user()->company_id,
             ...$data,
+        ]);
+
+        $auditLogService->record(auth()->user(), 'usuarios', 'criou', 'Usuário cadastrado: '.$user->name, $user, [
+            'email' => $user->email,
+            'role' => $user->role,
         ]);
 
         return redirect()
@@ -49,18 +55,23 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(Request $request, User $user, AuditLogService $auditLogService): RedirectResponse
     {
         $this->authorizeUser($user);
 
         $user->update($this->validateUser($request, $user));
+
+        $auditLogService->record(auth()->user(), 'usuarios', 'atualizou', 'Usuário atualizado: '.$user->name, $user, [
+            'email' => $user->email,
+            'role' => $user->role,
+        ]);
 
         return redirect()
             ->route('users.index')
             ->with('status', 'Usuário atualizado com sucesso.');
     }
 
-    public function destroy(User $user): RedirectResponse
+    public function destroy(User $user, AuditLogService $auditLogService): RedirectResponse
     {
         $this->authorizeUser($user);
 
@@ -70,7 +81,14 @@ class UserController extends Controller
                 ->with('error', 'Não é possível excluir o usuário autenticado.');
         }
 
+        $userName = $user->name;
+        $userEmail = $user->email;
+
         $user->delete();
+
+        $auditLogService->record(auth()->user(), 'usuarios', 'excluiu', 'Usuário excluído: '.$userName, null, [
+            'email' => $userEmail,
+        ]);
 
         return redirect()
             ->route('users.index')

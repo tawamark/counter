@@ -39,6 +39,10 @@
                             <i data-lucide="users" class="size-4"></i>
                             Usuários
                         </a>
+                        <a href="{{ route('audit-logs.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('audit-logs.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                            <i data-lucide="history" class="size-4"></i>
+                            Auditoria
+                        </a>
                     @endif
 
                     @if (in_array(auth()->user()->role, ['admin', 'stockist'], true))
@@ -103,6 +107,10 @@
                             <a href="{{ route('users.index') }}" x-on:click="mobileMenuOpen = false" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('users.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
                                 <i data-lucide="users" class="size-4"></i>
                                 Usuários
+                            </a>
+                            <a href="{{ route('audit-logs.index') }}" x-on:click="mobileMenuOpen = false" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('audit-logs.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                                <i data-lucide="history" class="size-4"></i>
+                                Auditoria
                             </a>
                         @endif
 
