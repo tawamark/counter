@@ -35,7 +35,7 @@
         </div>
     </section>
 
-    <section class="grid gap-4 xl:grid-cols-2">
+    <section class="space-y-4">
         <div class="rounded-lg border border-[#e5e0dc] bg-counter-bg shadow-sm">
             <div class="border-b border-[#e5e0dc] px-4 py-3">
                 <h2 class="text-sm font-semibold">Estoque atual</h2>
@@ -84,7 +84,7 @@
         </div>
 
         @if (auth()->user()->role === 'admin')
-            <div class="rounded-lg border border-[#e5e0dc] bg-counter-bg shadow-sm xl:col-span-2">
+            <div class="rounded-lg border border-[#e5e0dc] bg-counter-bg shadow-sm">
                 <div class="border-b border-[#e5e0dc] px-4 py-3">
                     <h2 class="text-sm font-semibold">Divergências</h2>
                     <p class="mt-1 text-sm text-[#6f6f6f]">Itens contados com falta física, sobra física ou sem divergência.</p>
