@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Company;
 use App\Models\Product;
+use App\Models\StockMovement;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -107,6 +108,43 @@ class StockMovementTest extends TestCase
                 'quantity' => 1,
             ])
             ->assertSessionHasErrors('product_id');
+    }
+
+    public function test_user_can_filter_stock_movement_history(): void
+    {
+        [$user, $product] = $this->createUserAndProduct(5);
+        $otherProduct = Product::create([
+            'company_id' => $user->company_id,
+            'name' => 'Mouse',
+            'sku' => 'MOU-001',
+            'current_quantity' => 2,
+        ]);
+
+        StockMovement::create([
+            'company_id' => $user->company_id,
+            'product_id' => $product->id,
+            'user_id' => $user->id,
+            'type' => 'entry',
+            'quantity' => 1,
+            'quantity_before' => 5,
+            'quantity_after' => 6,
+        ]);
+
+        StockMovement::create([
+            'company_id' => $user->company_id,
+            'product_id' => $otherProduct->id,
+            'user_id' => $user->id,
+            'type' => 'exit',
+            'quantity' => 1,
+            'quantity_before' => 2,
+            'quantity_after' => 1,
+        ]);
+
+        $this->actingAs($user)
+            ->get("/stock-movements?product_id={$product->id}&type=entry&user_id={$user->id}")
+            ->assertOk()
+            ->assertSee('Notebook')
+            ->assertDontSee('<td class="px-4 py-3 font-medium">Mouse</td>', false);
     }
 
     private function createUserAndProduct(float $quantity, string $companyName = 'Counter Demo', string $email = 'admin@counter.test'): array
