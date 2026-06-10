@@ -38,6 +38,10 @@
                         <i data-lucide="clipboard-list" class="size-4"></i>
                         Contagens
                     </a>
+                    <a href="{{ route('divergences.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('divergences.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                        <i data-lucide="scale" class="size-4"></i>
+                        Divergências
+                    </a>
                 </nav>
             </aside>
 

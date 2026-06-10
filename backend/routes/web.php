@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DivergenceController;
 use App\Http\Controllers\InventoryCountController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockMovementController;
@@ -19,6 +20,7 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::resource('categories', CategoryController::class)->except(['show']);
+    Route::get('/divergences', [DivergenceController::class, 'index'])->name('divergences.index');
     Route::post('/inventory-counts/{inventoryCount}/items', [InventoryCountController::class, 'updateItems'])->name('inventory-counts.items.update');
     Route::resource('inventory-counts', InventoryCountController::class)->only(['index', 'create', 'store', 'show']);
     Route::resource('products', ProductController::class)->except(['show']);
