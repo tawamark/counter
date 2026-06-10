@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DivergenceController;
 use App\Http\Controllers\InventoryCountController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
@@ -24,6 +25,7 @@ Route::middleware('auth')->group(function (): void {
     Route::middleware('role:admin')->group(function (): void {
         Route::resource('categories', CategoryController::class)->except(['show']);
         Route::get('/divergences', [DivergenceController::class, 'index'])->name('divergences.index');
+        Route::get('/reports/divergences.csv', [ReportController::class, 'divergences'])->name('reports.divergences');
         Route::post('/inventory-counts/{inventoryCount}/approve', [InventoryCountController::class, 'approve'])->name('inventory-counts.approve');
         Route::post('/inventory-counts/{inventoryCount}/finish', [InventoryCountController::class, 'finish'])->name('inventory-counts.finish');
         Route::resource('inventory-counts', InventoryCountController::class)->only(['create', 'store']);
@@ -39,6 +41,9 @@ Route::middleware('auth')->group(function (): void {
 
     Route::middleware('role:admin,stockist')->group(function (): void {
         Route::resource('products', ProductController::class)->only(['index']);
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/stock.csv', [ReportController::class, 'stock'])->name('reports.stock');
+        Route::get('/reports/movements.csv', [ReportController::class, 'movements'])->name('reports.movements');
         Route::resource('stock-movements', StockMovementController::class)->only(['index', 'create', 'store']);
     });
 

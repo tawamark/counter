@@ -46,6 +46,10 @@
                             <i data-lucide="arrow-down-up" class="size-4"></i>
                             Movimentações
                         </a>
+                        <a href="{{ route('reports.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('reports.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                            <i data-lucide="file-down" class="size-4"></i>
+                            Relatórios
+                        </a>
                     @endif
 
                     @if (in_array(auth()->user()->role, ['admin', 'counter'], true))
@@ -106,6 +110,10 @@
                             <a href="{{ route('stock-movements.index') }}" x-on:click="mobileMenuOpen = false" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('stock-movements.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
                                 <i data-lucide="arrow-down-up" class="size-4"></i>
                                 Movimentações
+                            </a>
+                            <a href="{{ route('reports.index') }}" x-on:click="mobileMenuOpen = false" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('reports.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                                <i data-lucide="file-down" class="size-4"></i>
+                                Relatórios
                             </a>
                         @endif
 
