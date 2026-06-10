@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserRequest;
 use App\Models\User;
 use App\Services\AuditLogService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -27,13 +26,11 @@ class UserController extends Controller
         return view('users.create');
     }
 
-    public function store(Request $request, AuditLogService $auditLogService): RedirectResponse
+    public function store(UserRequest $request, AuditLogService $auditLogService): RedirectResponse
     {
-        $data = $this->validateUser($request);
-
         $user = User::create([
-            'company_id' => auth()->user()->company_id,
-            ...$data,
+            'company_id' => $request->user()->company_id,
+            ...$request->validatedData(),
         ]);
 
         $auditLogService->record(auth()->user(), 'usuarios', 'criou', 'Usuário cadastrado: '.$user->name, $user, [
@@ -55,11 +52,11 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(Request $request, User $user, AuditLogService $auditLogService): RedirectResponse
+    public function update(UserRequest $request, User $user, AuditLogService $auditLogService): RedirectResponse
     {
         $this->authorizeUser($user);
 
-        $user->update($this->validateUser($request, $user));
+        $user->update($request->validatedData());
 
         $auditLogService->record(auth()->user(), 'usuarios', 'atualizou', 'Usuário atualizado: '.$user->name, $user, [
             'email' => $user->email,
@@ -93,29 +90,6 @@ class UserController extends Controller
         return redirect()
             ->route('users.index')
             ->with('status', 'Usuário excluído com sucesso.');
-    }
-
-    private function validateUser(Request $request, ?User $user = null): array
-    {
-        $rules = [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('users')->ignore($user),
-            ],
-            'role' => ['required', Rule::in(['admin', 'stockist', 'counter'])],
-            'password' => [$user ? 'nullable' : 'required', 'string', 'min:8', 'max:255'],
-        ];
-
-        $data = $request->validate($rules);
-
-        if (($data['password'] ?? null) === null || $data['password'] === '') {
-            unset($data['password']);
-        }
-
-        return $data;
     }
 
     private function authorizeUser(User $user): void

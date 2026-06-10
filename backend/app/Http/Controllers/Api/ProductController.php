@@ -3,13 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\ApiResponse;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductController extends Controller
 {
+    use ApiResponse;
+
     public function index(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -27,7 +29,7 @@ class ProductController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-        return $this->paginated($products, 'Produtos encontrados com sucesso');
+        return $this->paginated($products, fn (Product $product) => $this->productData($product), 'Produtos encontrados com sucesso');
     }
 
     public function show(Request $request, Product $product): JsonResponse
@@ -54,7 +56,7 @@ class ProductController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-        return $this->paginated($products, 'Busca realizada com sucesso');
+        return $this->paginated($products, fn (Product $product) => $this->productData($product), 'Busca realizada com sucesso');
     }
 
     private function applySearch($query, string $term)
@@ -88,27 +90,4 @@ class ProductController extends Controller
         ];
     }
 
-    private function success(mixed $data, string $message): JsonResponse
-    {
-        return response()->json([
-            'success' => true,
-            'data' => $data,
-            'message' => $message,
-        ]);
-    }
-
-    private function paginated(LengthAwarePaginator $paginator, string $message): JsonResponse
-    {
-        return response()->json([
-            'success' => true,
-            'data' => collect($paginator->items())->map(fn (Product $product) => $this->productData($product))->values(),
-            'message' => $message,
-            'meta' => [
-                'current_page' => $paginator->currentPage(),
-                'last_page' => $paginator->lastPage(),
-                'per_page' => $paginator->perPage(),
-                'total' => $paginator->total(),
-            ],
-        ]);
-    }
 }

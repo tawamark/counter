@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreInventoryCountRequest;
+use App\Http\Requests\UpdateInventoryCountItemsRequest;
 use App\Models\InventoryCount;
 use App\Models\Product;
 use App\Services\InventoryCountService;
 use App\Services\StockMovementService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class InventoryCountController extends Controller
@@ -33,17 +33,10 @@ class InventoryCountController extends Controller
         ]);
     }
 
-    public function store(Request $request, InventoryCountService $service): RedirectResponse
+    public function store(StoreInventoryCountRequest $request, InventoryCountService $service): RedirectResponse
     {
-        $companyId = auth()->user()->company_id;
-
-        $data = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'product_ids' => ['required', 'array', 'min:1'],
-            'product_ids.*' => ['integer', Rule::exists('products', 'id')->where('company_id', $companyId)],
-        ]);
-
-        $count = $service->create(auth()->user(), $data['title'], $data['product_ids']);
+        $data = $request->validated();
+        $count = $service->create($request->user(), $data['title'], $data['product_ids']);
 
         return redirect()
             ->route('inventory-counts.show', $count)
@@ -61,21 +54,11 @@ class InventoryCountController extends Controller
         ]);
     }
 
-    public function updateItems(Request $request, InventoryCount $inventoryCount, InventoryCountService $service): RedirectResponse
+    public function updateItems(UpdateInventoryCountItemsRequest $request, InventoryCount $inventoryCount, InventoryCountService $service): RedirectResponse
     {
         abort_unless($inventoryCount->company_id === auth()->user()->company_id, 404);
 
-        $itemIds = $inventoryCount->items()->pluck('id')->all();
-
-        $data = $request->validate([
-            'items' => ['required', 'array'],
-            'items.*.id' => ['required', 'integer', Rule::in($itemIds)],
-            'items.*.counted_quantity' => ['nullable', 'numeric', 'min:0', 'max:999999999.999'],
-        ]);
-
-        $items = collect($data['items'])->keyBy('id')->all();
-
-        $service->updateItems(auth()->user(), $inventoryCount, $items);
+        $service->updateItems($request->user(), $inventoryCount, $request->itemsById());
 
         return redirect()
             ->route('inventory-counts.show', $inventoryCount)

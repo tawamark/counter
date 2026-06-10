@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreStockMovementRequest;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\User;
@@ -51,21 +52,14 @@ class StockMovementController extends Controller
         ]);
     }
 
-    public function store(Request $request, StockMovementService $service): RedirectResponse
+    public function store(StoreStockMovementRequest $request, StockMovementService $service): RedirectResponse
     {
-        $companyId = auth()->user()->company_id;
-
-        $data = $request->validate([
-            'product_id' => ['required', Rule::exists('products', 'id')->where('company_id', $companyId)],
-            'type' => ['required', Rule::in(['entry', 'exit', 'adjustment'])],
-            'quantity' => ['required', 'numeric', 'min:0.001', 'max:999999999.999'],
-            'reason' => ['nullable', 'string', 'max:255'],
-        ]);
-
+        $companyId = $request->user()->company_id;
+        $data = $request->validated();
         $product = Product::where('company_id', $companyId)->findOrFail($data['product_id']);
 
         $service->register(
-            auth()->user(),
+            $request->user(),
             $product,
             $data['type'],
             (float) $data['quantity'],

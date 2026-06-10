@@ -3,16 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\ApiResponse;
 use App\Models\InventoryCount;
 use App\Models\InventoryCountItem;
 use App\Services\InventoryCountService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\Rule;
 
 class InventoryCountController extends Controller
 {
+    use ApiResponse;
+
     public function index(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -30,7 +32,7 @@ class InventoryCountController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-        return $this->paginatedCounts($counts, 'Contagens encontradas com sucesso');
+        return $this->paginated($counts, fn (InventoryCount $count) => $this->countData($count), 'Contagens encontradas com sucesso');
     }
 
     public function show(Request $request, InventoryCount $inventoryCount): JsonResponse
@@ -58,7 +60,7 @@ class InventoryCountController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-        return $this->paginatedItems($items, 'Itens encontrados com sucesso');
+        return $this->paginated($items, fn (InventoryCountItem $item) => $this->itemData($item), 'Itens encontrados com sucesso');
     }
 
     public function updateItems(Request $request, InventoryCount $inventoryCount, InventoryCountService $service): JsonResponse
@@ -111,42 +113,4 @@ class InventoryCountController extends Controller
         ];
     }
 
-    private function success(mixed $data, string $message): JsonResponse
-    {
-        return response()->json([
-            'success' => true,
-            'data' => $data,
-            'message' => $message,
-        ]);
-    }
-
-    private function paginatedCounts(LengthAwarePaginator $paginator, string $message): JsonResponse
-    {
-        return response()->json([
-            'success' => true,
-            'data' => collect($paginator->items())->map(fn (InventoryCount $count) => $this->countData($count))->values(),
-            'message' => $message,
-            'meta' => $this->meta($paginator),
-        ]);
-    }
-
-    private function paginatedItems(LengthAwarePaginator $paginator, string $message): JsonResponse
-    {
-        return response()->json([
-            'success' => true,
-            'data' => collect($paginator->items())->map(fn (InventoryCountItem $item) => $this->itemData($item))->values(),
-            'message' => $message,
-            'meta' => $this->meta($paginator),
-        ]);
-    }
-
-    private function meta(LengthAwarePaginator $paginator): array
-    {
-        return [
-            'current_page' => $paginator->currentPage(),
-            'last_page' => $paginator->lastPage(),
-            'per_page' => $paginator->perPage(),
-            'total' => $paginator->total(),
-        ];
-    }
 }

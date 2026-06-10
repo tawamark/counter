@@ -25,6 +25,7 @@ Consulte também:
 
 - [`../docs/guia-desenvolvimento.md`](../docs/guia-desenvolvimento.md)
 - [`../docs/ordem-desenvolvimento.md`](../docs/ordem-desenvolvimento.md)
+- [`../docs/api-mobile.md`](../docs/api-mobile.md)
 
 Os arquivos `../AGENTS.md` e `../Documentação Projeto Prog lll.txt` são usados como referência local e não devem ser versionados.
 

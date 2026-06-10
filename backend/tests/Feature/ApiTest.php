@@ -42,6 +42,36 @@ class ApiTest extends TestCase
             ->assertJsonPath('message', 'Não autenticado');
     }
 
+    public function test_api_validation_errors_follow_contract(): void
+    {
+        $user = $this->createUser();
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson('/api/products?per_page=101')
+            ->assertUnprocessable()
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('message', 'Erro de validação')
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'errors' => [
+                    'per_page',
+                ],
+            ]);
+    }
+
+    public function test_api_forbidden_errors_follow_contract(): void
+    {
+        $user = $this->createUser(role: 'stockist');
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson('/api/mobile/summary')
+            ->assertForbidden()
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('message', 'Acesso não autorizado')
+            ->assertJsonPath('errors', []);
+    }
+
     public function test_user_can_list_and_search_products_with_pagination(): void
     {
         $user = $this->createUser();
@@ -204,7 +234,7 @@ class ApiTest extends TestCase
         return [$user, $count, $item];
     }
 
-    private function createUser(string $companyName = 'Counter Demo', string $email = 'admin@counter.test'): User
+    private function createUser(string $companyName = 'Counter Demo', string $email = 'admin@counter.test', string $role = 'admin'): User
     {
         $company = Company::create([
             'name' => $companyName,
@@ -215,7 +245,7 @@ class ApiTest extends TestCase
             'name' => 'Administrador',
             'email' => $email,
             'password' => 'password',
-            'role' => 'admin',
+            'role' => $role,
         ]);
     }
 }

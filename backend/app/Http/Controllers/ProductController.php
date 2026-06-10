@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductRequest;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Supplier;
 use App\Services\AuditLogService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -30,13 +29,11 @@ class ProductController extends Controller
         return view('products.create', $this->formOptions());
     }
 
-    public function store(Request $request, AuditLogService $auditLogService): RedirectResponse
+    public function store(ProductRequest $request, AuditLogService $auditLogService): RedirectResponse
     {
-        $data = $this->validateProduct($request);
-
         $product = Product::create([
-            'company_id' => auth()->user()->company_id,
-            ...$data,
+            'company_id' => $request->user()->company_id,
+            ...$request->validated(),
         ]);
 
         $auditLogService->record(auth()->user(), 'produtos', 'criou', 'Produto cadastrado: '.$product->name, $product, [
@@ -58,11 +55,11 @@ class ProductController extends Controller
         ]);
     }
 
-    public function update(Request $request, Product $product, AuditLogService $auditLogService): RedirectResponse
+    public function update(ProductRequest $request, Product $product, AuditLogService $auditLogService): RedirectResponse
     {
         $this->authorizeProduct($product);
 
-        $product->update($this->validateProduct($request, $product));
+        $product->update($request->validated());
 
         $auditLogService->record(auth()->user(), 'produtos', 'atualizou', 'Produto atualizado: '.$product->name, $product, [
             'sku' => $product->sku,
@@ -95,29 +92,6 @@ class ProductController extends Controller
         return redirect()
             ->route('products.index')
             ->with('status', 'Produto excluído com sucesso.');
-    }
-
-    private function validateProduct(Request $request, ?Product $product = null): array
-    {
-        $companyId = auth()->user()->company_id;
-
-        return $request->validate([
-            'category_id' => ['nullable', Rule::exists('categories', 'id')->where('company_id', $companyId)],
-            'supplier_id' => ['nullable', Rule::exists('suppliers', 'id')->where('company_id', $companyId)],
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'sku' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('products')->where('company_id', $companyId)->ignore($product),
-            ],
-            'barcode' => ['nullable', 'string', 'max:255'],
-            'unit' => ['required', 'string', 'max:20'],
-            'cost_price' => ['required', 'numeric', 'min:0', 'max:99999999.99'],
-            'sale_price' => ['required', 'numeric', 'min:0', 'max:99999999.99'],
-            'current_quantity' => ['required', 'numeric', 'min:0', 'max:999999999.999'],
-        ]);
     }
 
     private function formOptions(): array
