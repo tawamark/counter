@@ -36,11 +36,12 @@ class DatabaseSeederTest extends TestCase
         ]);
 
         $this->assertSame(3, User::count());
-        $this->assertSame(2, Category::count());
-        $this->assertSame(1, Supplier::count());
-        $this->assertSame(3, Product::count());
-        $this->assertSame(5, StockMovement::count());
-        $this->assertSame(1, InventoryCount::count());
+        $this->assertSame(6, Category::count());
+        $this->assertSame(5, Supplier::count());
+        $this->assertSame(20, Product::count());
+        $this->assertSame(40, StockMovement::count());
+        $this->assertSame(4, InventoryCount::count());
+        $this->assertSame(17, InventoryCount::withCount('items')->get()->sum('items_count'));
 
         $this->assertDatabaseHas('inventory_count_items', [
             'system_quantity' => 10,
@@ -54,6 +55,21 @@ class DatabaseSeederTest extends TestCase
             'counted_quantity' => 18,
             'difference' => 3,
             'sync_status' => 'synced',
+        ]);
+
+        $this->assertDatabaseHas('inventory_counts', [
+            'title' => 'Contagem almoxarifado',
+            'status' => 'open',
+        ]);
+
+        $this->assertDatabaseHas('inventory_counts', [
+            'title' => 'Contagem escritório',
+            'status' => 'finished',
+        ]);
+
+        $this->assertDatabaseHas('inventory_counts', [
+            'title' => 'Contagem limpeza aprovada',
+            'status' => 'approved',
         ]);
     }
 }
