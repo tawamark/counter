@@ -42,7 +42,7 @@
                 <p class="mt-1 text-sm text-[#6f6f6f]">Produtos com SKU, categoria, fornecedor, unidade, quantidade e preços.</p>
             </div>
             <div class="p-4">
-                <a href="{{ route('reports.stock') }}" class="inline-flex items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
+                <a href="{{ route('reports.stock') }}" data-no-loader class="inline-flex items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
                     <i data-lucide="download" class="size-4"></i>
                     Exportar estoque
                 </a>
@@ -54,7 +54,7 @@
                 <h2 class="text-sm font-semibold">Movimentações</h2>
                 <p class="mt-1 text-sm text-[#6f6f6f]">Entradas, saídas, ajustes, responsáveis, motivos e contagens vinculadas.</p>
             </div>
-            <form method="GET" action="{{ route('reports.movements') }}" class="p-4">
+            <form method="GET" action="{{ route('reports.movements') }}" data-no-loader class="p-4">
                 <div class="grid gap-4 md:grid-cols-2">
                     <x-dropdown-select name="product_id" label="Produto" :options="collect(['' => 'Todos'])->union($products->pluck('name', 'id'))->all()" />
 
@@ -105,7 +105,7 @@
                         </div>
                     </div>
 
-                    <form method="GET" action="{{ route('reports.divergences') }}" class="flex flex-col gap-3 sm:flex-row">
+                    <form method="GET" action="{{ route('reports.divergences') }}" data-no-loader class="flex flex-col gap-3 sm:flex-row">
                         <x-dropdown-select name="type" id="divergence_type" :options="['' => 'Todos', 'shortage' => 'Falta física', 'surplus' => 'Sobra física', 'none' => 'Sem divergência']" class="sm:w-52" />
                         <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
                             <i data-lucide="download" class="size-4"></i>

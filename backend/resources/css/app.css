@@ -18,6 +18,97 @@
 }
 
 @layer components {
+    .counter-top-loader {
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        z-index: 55;
+        display: none;
+        height: 3px;
+        overflow: hidden;
+        background-color: transparent;
+    }
+
+    .counter-top-loader-bar {
+        width: 42%;
+        height: 100%;
+        border-radius: 999px;
+        background-color: #FC6F20;
+        animation: counter-progress 1100ms ease-in-out infinite;
+    }
+
+    .counter-screen-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 70;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background-color: #ffffff;
+    }
+
+    .counter-screen-loader-mark {
+        position: relative;
+        display: flex;
+        width: 96px;
+        height: 96px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .counter-screen-loader-ring {
+        position: absolute;
+        inset: 0;
+        border: 3px solid #e5e0dc;
+        border-top-color: #FC6F20;
+        border-radius: 999px;
+        animation: counter-spin 900ms linear infinite;
+    }
+
+    .counter-screen-loader-icon {
+        width: 42px;
+        height: 42px;
+    }
+
+    .counter-skeleton-host {
+        position: relative !important;
+    }
+
+    .counter-skeleton-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        overflow: hidden;
+        border-radius: inherit;
+        background-color: rgb(255 255 255 / 82%);
+        pointer-events: none;
+    }
+
+    .counter-skeleton-line {
+        position: absolute;
+        overflow: hidden;
+        border-radius: 6px;
+        background-color: #ece7e2;
+    }
+
+    .counter-skeleton-line::after {
+        position: absolute;
+        inset: 0;
+        content: '';
+        transform: translateX(-100%);
+        background-image: linear-gradient(90deg, transparent, rgb(255 255 255 / 66%), transparent);
+        animation: counter-skeleton 1400ms ease-in-out infinite;
+    }
+
+    body.counter-is-loading .counter-top-loader {
+        display: block;
+    }
+
+    body.counter-loader-full .counter-screen-loader {
+        display: flex;
+    }
+
     .counter-option-trigger {
         width: 100%;
         min-height: 42px;
@@ -83,5 +174,37 @@
     .counter-option-item-selected {
         background-color: #fff3ec;
         color: #FC6F20;
+    }
+}
+
+@media (width >= 64rem) {
+    .counter-top-loader {
+        left: 256px;
+    }
+}
+
+@keyframes counter-progress {
+    0% {
+        transform: translateX(-110%);
+    }
+
+    55% {
+        transform: translateX(90%);
+    }
+
+    100% {
+        transform: translateX(260%);
+    }
+}
+
+@keyframes counter-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes counter-skeleton {
+    100% {
+        transform: translateX(100%);
     }
 }

@@ -21,6 +21,8 @@
             <x-toast :message="$toastMessage" :type="$toastType" />
         @endif
 
+        <x-app-loader />
+
         <x-confirm-modal />
 
         <div x-data="{ mobileMenuOpen: false }" x-on:keydown.escape.window="mobileMenuOpen = false" class="min-h-screen">
