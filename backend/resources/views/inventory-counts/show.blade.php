@@ -95,6 +95,46 @@
         </div>
     </form>
 
+    @if ($count->status === 'approved' || $count->adjustmentMovements->isNotEmpty())
+        <section class="mt-4 rounded-lg border border-[#e5e0dc] bg-counter-bg shadow-sm">
+            <div class="border-b border-[#e5e0dc] px-4 py-3">
+                <h2 class="text-sm font-semibold">Ajustes aprovados</h2>
+                <p class="mt-1 text-sm text-[#6f6f6f]">Movimentações de ajuste geradas pela aprovação desta contagem.</p>
+            </div>
+
+            @if ($count->adjustmentMovements->isEmpty())
+                <div class="px-4 py-6 text-sm text-[#6f6f6f]">
+                    Nenhum ajuste foi necessário.
+                </div>
+            @else
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[780px] text-left text-sm">
+                        <thead class="bg-[#f7f5f3] text-xs uppercase text-[#6f6f6f]">
+                            <tr>
+                                <th class="px-4 py-3 font-semibold">Produto</th>
+                                <th class="px-4 py-3 font-semibold">Saldo anterior</th>
+                                <th class="px-4 py-3 font-semibold">Saldo aprovado</th>
+                                <th class="px-4 py-3 font-semibold">Responsável</th>
+                                <th class="px-4 py-3 font-semibold">Data</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#e5e0dc]">
+                            @foreach ($count->adjustmentMovements as $movement)
+                                <tr>
+                                    <td class="px-4 py-3 font-medium">{{ $movement->product?->name ?? 'Produto removido' }}</td>
+                                    <td class="px-4 py-3 text-[#6f6f6f]">{{ number_format((float) $movement->quantity_before, 3, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-[#6f6f6f]">{{ number_format((float) $movement->quantity_after, 3, ',', '.') }}</td>
+                                    <td class="px-4 py-3 text-[#6f6f6f]">{{ $movement->user?->name ?? 'Usuário removido' }}</td>
+                                    <td class="px-4 py-3 text-[#6f6f6f]">{{ $movement->created_at?->format('d/m/Y H:i') ?? '-' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </section>
+    @endif
+
     @if (auth()->user()->role === 'admin')
         <section class="mt-4 flex flex-col gap-3 rounded-lg border border-[#e5e0dc] bg-counter-bg p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div>

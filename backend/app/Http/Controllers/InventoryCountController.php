@@ -54,7 +54,7 @@ class InventoryCountController extends Controller
     {
         abort_unless($inventoryCount->company_id === auth()->user()->company_id, 404);
 
-        $inventoryCount->load(['creator', 'items.product', 'items.counter']);
+        $inventoryCount->load(['creator', 'items.product', 'items.counter', 'adjustmentMovements.product', 'adjustmentMovements.user']);
 
         return view('inventory-counts.show', [
             'count' => $inventoryCount,

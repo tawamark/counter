@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\InventoryCount;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\User;
@@ -10,13 +11,17 @@ use Illuminate\Validation\ValidationException;
 
 class StockMovementService
 {
-    public function register(User $user, Product $product, string $type, float $quantity, ?string $reason = null): StockMovement
+    public function register(User $user, Product $product, string $type, float $quantity, ?string $reason = null, ?InventoryCount $inventoryCount = null): StockMovement
     {
         if ($product->company_id !== $user->company_id) {
             abort(404);
         }
 
-        return DB::transaction(function () use ($user, $product, $type, $quantity, $reason): StockMovement {
+        if ($inventoryCount !== null && $inventoryCount->company_id !== $user->company_id) {
+            abort(404);
+        }
+
+        return DB::transaction(function () use ($user, $product, $type, $quantity, $reason, $inventoryCount): StockMovement {
             $product->refresh();
 
             $quantityBefore = (float) $product->current_quantity;
@@ -30,6 +35,7 @@ class StockMovementService
                 'company_id' => $user->company_id,
                 'product_id' => $product->id,
                 'user_id' => $user->id,
+                'inventory_count_id' => $inventoryCount?->id,
                 'type' => $type,
                 'quantity' => $quantity,
                 'quantity_before' => $quantityBefore,

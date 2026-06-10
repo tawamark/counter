@@ -44,4 +44,9 @@ class InventoryCount extends Model
     {
         return $this->hasMany(InventoryCountItem::class);
     }
+
+    public function adjustmentMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class);
+    }
 }

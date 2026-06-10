@@ -149,7 +149,8 @@ class InventoryCountService
                     $item->product,
                     'adjustment',
                     (float) $item->counted_quantity,
-                    'Ajuste aprovado pela contagem '.$count->title
+                    'Ajuste aprovado pela contagem '.$count->title,
+                    $count
                 );
             }
 

@@ -347,6 +347,7 @@ class InventoryCountTest extends TestCase
             'company_id' => $user->company_id,
             'product_id' => $product->id,
             'user_id' => $user->id,
+            'inventory_count_id' => $count->id,
             'type' => 'adjustment',
             'quantity' => 7,
             'quantity_before' => 10,
@@ -356,6 +357,12 @@ class InventoryCountTest extends TestCase
 
         $this->assertSame(1, StockMovement::count());
         $this->assertNotNull($count->refresh()->approved_at);
+
+        $this->actingAs($user)
+            ->get("/inventory-counts/{$count->id}")
+            ->assertOk()
+            ->assertSee('Ajustes aprovados')
+            ->assertSee('Notebook');
     }
 
     public function test_user_cannot_approve_inventory_count_before_finish(): void
