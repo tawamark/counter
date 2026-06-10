@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Company;
 use App\Models\InventoryCount;
 use App\Models\Product;
+use App\Models\StockMovement;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -239,6 +240,156 @@ class InventoryCountTest extends TestCase
             'difference' => 0,
             'sync_status' => 'pending',
         ]);
+    }
+
+    public function test_user_cannot_finish_inventory_count_with_pending_items(): void
+    {
+        [$user, $product] = $this->createUserAndProduct(10);
+
+        $count = InventoryCount::create([
+            'company_id' => $user->company_id,
+            'created_by' => $user->id,
+            'title' => 'Contagem semanal',
+            'status' => 'in_progress',
+            'started_at' => now(),
+        ]);
+
+        $count->items()->create([
+            'product_id' => $product->id,
+            'system_quantity' => 10,
+            'difference' => 0,
+            'sync_status' => 'pending',
+        ]);
+
+        $this->actingAs($user)
+            ->post("/inventory-counts/{$count->id}/finish")
+            ->assertSessionHasErrors('count');
+
+        $this->assertDatabaseHas('inventory_counts', [
+            'id' => $count->id,
+            'status' => 'in_progress',
+            'finished_at' => null,
+        ]);
+    }
+
+    public function test_user_can_finish_inventory_count_when_all_items_are_counted(): void
+    {
+        [$user, $product] = $this->createUserAndProduct(10);
+
+        $count = InventoryCount::create([
+            'company_id' => $user->company_id,
+            'created_by' => $user->id,
+            'title' => 'Contagem semanal',
+            'status' => 'in_progress',
+            'started_at' => now(),
+        ]);
+
+        $count->items()->create([
+            'product_id' => $product->id,
+            'counted_by' => $user->id,
+            'system_quantity' => 10,
+            'counted_quantity' => 7,
+            'difference' => -3,
+            'sync_status' => 'synced',
+            'counted_at' => now(),
+        ]);
+
+        $this->actingAs($user)
+            ->post("/inventory-counts/{$count->id}/finish")
+            ->assertRedirect("/inventory-counts/{$count->id}");
+
+        $this->assertDatabaseHas('inventory_counts', [
+            'id' => $count->id,
+            'status' => 'finished',
+        ]);
+
+        $this->assertNotNull($count->refresh()->finished_at);
+    }
+
+    public function test_user_can_approve_finished_inventory_count_adjustments(): void
+    {
+        [$user, $product] = $this->createUserAndProduct(10);
+
+        $count = InventoryCount::create([
+            'company_id' => $user->company_id,
+            'created_by' => $user->id,
+            'title' => 'Contagem semanal',
+            'status' => 'finished',
+            'started_at' => now(),
+            'finished_at' => now(),
+        ]);
+
+        $count->items()->create([
+            'product_id' => $product->id,
+            'counted_by' => $user->id,
+            'system_quantity' => 10,
+            'counted_quantity' => 7,
+            'difference' => -3,
+            'sync_status' => 'synced',
+            'counted_at' => now(),
+        ]);
+
+        $this->actingAs($user)
+            ->post("/inventory-counts/{$count->id}/approve")
+            ->assertRedirect("/inventory-counts/{$count->id}");
+
+        $this->assertDatabaseHas('inventory_counts', [
+            'id' => $count->id,
+            'status' => 'approved',
+        ]);
+
+        $this->assertDatabaseHas('products', [
+            'id' => $product->id,
+            'current_quantity' => 7,
+        ]);
+
+        $this->assertDatabaseHas('stock_movements', [
+            'company_id' => $user->company_id,
+            'product_id' => $product->id,
+            'user_id' => $user->id,
+            'type' => 'adjustment',
+            'quantity' => 7,
+            'quantity_before' => 10,
+            'quantity_after' => 7,
+            'reason' => 'Ajuste aprovado pela contagem Contagem semanal',
+        ]);
+
+        $this->assertSame(1, StockMovement::count());
+        $this->assertNotNull($count->refresh()->approved_at);
+    }
+
+    public function test_user_cannot_approve_inventory_count_before_finish(): void
+    {
+        [$user, $product] = $this->createUserAndProduct(10);
+
+        $count = InventoryCount::create([
+            'company_id' => $user->company_id,
+            'created_by' => $user->id,
+            'title' => 'Contagem semanal',
+            'status' => 'in_progress',
+            'started_at' => now(),
+        ]);
+
+        $count->items()->create([
+            'product_id' => $product->id,
+            'counted_by' => $user->id,
+            'system_quantity' => 10,
+            'counted_quantity' => 7,
+            'difference' => -3,
+            'sync_status' => 'synced',
+            'counted_at' => now(),
+        ]);
+
+        $this->actingAs($user)
+            ->post("/inventory-counts/{$count->id}/approve")
+            ->assertSessionHasErrors('count');
+
+        $this->assertDatabaseHas('products', [
+            'id' => $product->id,
+            'current_quantity' => 10,
+        ]);
+
+        $this->assertSame(0, StockMovement::count());
     }
 
     private function createUserAndProduct(float $quantity, string $companyName = 'Counter Demo', string $email = 'admin@counter.test'): array

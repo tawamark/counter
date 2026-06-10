@@ -93,4 +93,72 @@ class InventoryCountService
             return $count->refresh();
         });
     }
+
+    public function finish(User $user, InventoryCount $count): InventoryCount
+    {
+        if ($count->company_id !== $user->company_id) {
+            abort(404);
+        }
+
+        if ($count->status === 'approved') {
+            throw ValidationException::withMessages([
+                'count' => 'Não é possível finalizar uma contagem aprovada.',
+            ]);
+        }
+
+        $missingItems = $count->items()
+            ->whereNull('counted_quantity')
+            ->exists();
+
+        if ($missingItems) {
+            throw ValidationException::withMessages([
+                'count' => 'Informe a quantidade contada de todos os itens antes de finalizar.',
+            ]);
+        }
+
+        $count->update([
+            'status' => 'finished',
+            'finished_at' => now(),
+        ]);
+
+        return $count->refresh();
+    }
+
+    public function approve(User $user, InventoryCount $count, StockMovementService $stockMovementService): InventoryCount
+    {
+        if ($count->company_id !== $user->company_id) {
+            abort(404);
+        }
+
+        if ($count->status !== 'finished') {
+            throw ValidationException::withMessages([
+                'count' => 'Somente contagens finalizadas podem ser aprovadas.',
+            ]);
+        }
+
+        return DB::transaction(function () use ($user, $count, $stockMovementService): InventoryCount {
+            $count->load('items.product');
+
+            foreach ($count->items as $item) {
+                if ($item->counted_quantity === null || (float) $item->difference === 0.0 || $item->product === null) {
+                    continue;
+                }
+
+                $stockMovementService->register(
+                    $user,
+                    $item->product,
+                    'adjustment',
+                    (float) $item->counted_quantity,
+                    'Ajuste aprovado pela contagem '.$count->title
+                );
+            }
+
+            $count->update([
+                'status' => 'approved',
+                'approved_at' => now(),
+            ]);
+
+            return $count->refresh();
+        });
+    }
 }

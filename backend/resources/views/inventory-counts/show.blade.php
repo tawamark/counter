@@ -19,6 +19,12 @@
         </div>
     @endif
 
+    @error('count')
+        <div class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {{ $message }}
+        </div>
+    @enderror
+
     <section class="mb-4 grid gap-4 md:grid-cols-3">
         <div class="rounded-lg border border-[#e5e0dc] bg-counter-bg p-4 shadow-sm">
             <p class="text-sm text-[#6f6f6f]">Produtos</p>
@@ -88,4 +94,32 @@
             </button>
         </div>
     </form>
+
+    <section class="mt-4 flex flex-col gap-3 rounded-lg border border-[#e5e0dc] bg-counter-bg p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h2 class="text-sm font-semibold">Aprovação de ajustes</h2>
+            <p class="mt-1 text-sm text-[#6f6f6f]">Finalize a contagem e aprove os ajustes para atualizar o estoque com as quantidades contadas.</p>
+        </div>
+        <div class="flex flex-col gap-3 sm:flex-row">
+            @if (! in_array($count->status, ['finished', 'approved'], true))
+                <form method="POST" action="{{ route('inventory-counts.finish', $count) }}">
+                    @csrf
+                    <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-md border border-[#e5e0dc] px-4 py-2.5 text-sm font-semibold text-[#323232] transition hover:bg-[#f7f5f3]">
+                        <i data-lucide="check" class="size-4"></i>
+                        Finalizar contagem
+                    </button>
+                </form>
+            @endif
+
+            @if ($count->status === 'finished')
+                <form method="POST" action="{{ route('inventory-counts.approve', $count) }}">
+                    @csrf
+                    <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
+                        <i data-lucide="badge-check" class="size-4"></i>
+                        Aprovar ajustes
+                    </button>
+                </form>
+            @endif
+        </div>
+    </section>
 </x-layouts.app>

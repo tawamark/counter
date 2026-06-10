@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\InventoryCount;
 use App\Models\Product;
 use App\Services\InventoryCountService;
+use App\Services\StockMovementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -79,6 +80,28 @@ class InventoryCountController extends Controller
         return redirect()
             ->route('inventory-counts.show', $inventoryCount)
             ->with('status', 'Itens da contagem atualizados com sucesso.');
+    }
+
+    public function finish(InventoryCount $inventoryCount, InventoryCountService $service): RedirectResponse
+    {
+        abort_unless($inventoryCount->company_id === auth()->user()->company_id, 404);
+
+        $service->finish(auth()->user(), $inventoryCount);
+
+        return redirect()
+            ->route('inventory-counts.show', $inventoryCount)
+            ->with('status', 'Contagem finalizada com sucesso.');
+    }
+
+    public function approve(InventoryCount $inventoryCount, InventoryCountService $service, StockMovementService $stockMovementService): RedirectResponse
+    {
+        abort_unless($inventoryCount->company_id === auth()->user()->company_id, 404);
+
+        $service->approve(auth()->user(), $inventoryCount, $stockMovementService);
+
+        return redirect()
+            ->route('inventory-counts.show', $inventoryCount)
+            ->with('status', 'Ajustes aprovados com sucesso.');
     }
 
     private function products()
