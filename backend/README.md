@@ -16,6 +16,7 @@ O projeto usa Laravel como base da aplicação web, da API REST e das regras de 
 - Tailwind CSS
 - Alpine.js
 - Lucide Icons
+- Laravel Sanctum
 
 ## Documentação do Projeto
 
@@ -23,11 +24,11 @@ Consulte também:
 
 - [`../docs/guia-desenvolvimento.md`](../docs/guia-desenvolvimento.md)
 - [`../AGENTS.md`](../AGENTS.md)
-- [`../Documentação Projeto Prog lll.txt`](../Documentação%20Projeto%20Prog%20lll.txt)
+- [`../Documentação Projeto Prog lll.txt`](../Documenta%C3%A7%C3%A3o%20Projeto%20Prog%20lll.txt)
 
 ## Requisitos Locais
 
-Antes de rodar o backend, confirme que estes serviços e ferramentas estão disponíveis:
+Antes de rodar o backend, confirme que estas ferramentas estão disponíveis:
 
 ```powershell
 php -v
@@ -103,6 +104,22 @@ Execute as migrations:
 php artisan migrate
 ```
 
+Carregue os dados de demonstração:
+
+```powershell
+php artisan db:seed
+```
+
+## Usuários de Demonstração
+
+Todos usam a senha `password`.
+
+| Perfil | E-mail | Acesso principal |
+| --- | --- | --- |
+| Administrador | `admin@counter.test` | Cadastros, contagens, divergências e aprovação de ajustes |
+| Estoquista | `estoquista@counter.test` | Produtos e movimentações de estoque |
+| Contador | `contador@counter.test` | Contagens e sincronização de itens contados |
+
 ## Executando o Projeto
 
 Suba o servidor Laravel:
@@ -145,6 +162,141 @@ Ou pelo script do Composer:
 composer test
 ```
 
+## API REST
+
+A API usa Laravel Sanctum com token Bearer. Todas as respostas seguem o padrão:
+
+```json
+{
+  "success": true,
+  "data": {},
+  "message": "Operação realizada com sucesso"
+}
+```
+
+Erros de validação seguem o padrão:
+
+```json
+{
+  "success": false,
+  "message": "Erro de validação",
+  "errors": {}
+}
+```
+
+### Login
+
+```http
+POST /api/login
+```
+
+Payload:
+
+```json
+{
+  "email": "contador@counter.test",
+  "password": "password"
+}
+```
+
+Resposta:
+
+```json
+{
+  "success": true,
+  "data": {
+    "token": "token-gerado",
+    "user": {
+      "id": 1,
+      "name": "Contador",
+      "email": "contador@counter.test",
+      "role": "counter",
+      "company": {
+        "id": 1,
+        "name": "Counter Demo"
+      }
+    }
+  },
+  "message": "Login realizado com sucesso"
+}
+```
+
+### Autenticação
+
+Envie o token nas rotas protegidas:
+
+```http
+Authorization: Bearer token-gerado
+Accept: application/json
+```
+
+### Rotas de Autenticação
+
+| Método | Rota | Perfil |
+| --- | --- | --- |
+| `POST` | `/api/login` | Público |
+| `POST` | `/api/logout` | Autenticado |
+| `GET` | `/api/me` | Autenticado |
+
+### Rotas de Produtos
+
+| Método | Rota | Perfis |
+| --- | --- | --- |
+| `GET` | `/api/products` | `admin`, `stockist`, `counter` |
+| `GET` | `/api/products/search?q=termo` | `admin`, `stockist`, `counter` |
+| `GET` | `/api/products/{id}` | `admin`, `stockist`, `counter` |
+
+### Rotas de Contagem
+
+| Método | Rota | Perfis |
+| --- | --- | --- |
+| `GET` | `/api/inventory-counts` | `admin`, `counter` |
+| `GET` | `/api/inventory-counts/{id}` | `admin`, `counter` |
+| `GET` | `/api/inventory-counts/{id}/items` | `admin`, `counter` |
+| `POST` | `/api/inventory-counts/{id}/items` | `admin`, `counter` |
+| `POST` | `/api/inventory-counts/{id}/sync` | `admin`, `counter` |
+
+### Sincronizar Itens Contados
+
+```http
+POST /api/inventory-counts/{id}/sync
+```
+
+Payload:
+
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "counted_quantity": 7
+    },
+    {
+      "id": 2,
+      "counted_quantity": 18
+    }
+  ]
+}
+```
+
+Resposta:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "title": "Contagem piloto",
+    "status": "in_progress",
+    "items_count": 5,
+    "started_at": "2026-06-10T00:00:00.000000Z",
+    "finished_at": null,
+    "approved_at": null
+  },
+  "message": "Itens sincronizados com sucesso"
+}
+```
+
 ## Verificações Recomendadas
 
 Após alterar código, rode:
@@ -152,6 +304,7 @@ Após alterar código, rode:
 ```powershell
 php artisan test
 npm run build
+composer audit
 npm audit --audit-level=critical
 git diff --check
 ```
