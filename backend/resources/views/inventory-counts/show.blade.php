@@ -13,18 +13,6 @@
         </span>
     </div>
 
-    @if (session('status'))
-        <div class="mb-4 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            {{ session('status') }}
-        </div>
-    @endif
-
-    @error('count')
-        <div class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {{ $message }}
-        </div>
-    @enderror
-
     <section class="mb-4 grid gap-4 md:grid-cols-3">
         <div class="rounded-lg border border-[#e5e0dc] bg-counter-bg p-4 shadow-sm">
             <p class="text-sm text-[#6f6f6f]">Produtos</p>
@@ -42,12 +30,6 @@
 
     <form method="POST" action="{{ route('inventory-counts.items.update', $count) }}" class="rounded-lg border border-[#e5e0dc] bg-counter-bg shadow-sm">
         @csrf
-
-        @error('items')
-            <div class="border-b border-[#e5e0dc] px-4 py-3 text-sm text-red-600">
-                {{ $message }}
-            </div>
-        @enderror
 
         <div class="overflow-x-auto">
             <table class="w-full min-w-[900px] text-left text-sm">

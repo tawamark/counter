@@ -12,18 +12,6 @@
         @endif
     </div>
 
-    @if (session('status'))
-        <div class="mb-4 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            {{ session('status') }}
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {{ session('error') }}
-        </div>
-    @endif
-
     <section class="rounded-lg border border-[#e5e0dc] bg-counter-bg shadow-sm">
         @if ($products->isEmpty())
             <div class="flex min-h-60 flex-col items-center justify-center px-6 py-10 text-center">
