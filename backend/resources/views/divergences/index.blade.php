@@ -34,15 +34,7 @@
 
     <form method="GET" action="{{ route('divergences.index') }}" class="mb-4 rounded-lg border border-[#e5e0dc] bg-counter-bg p-4 shadow-sm">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div class="sm:w-72">
-                <label for="type" class="mb-1 block text-sm font-medium">Tipo</label>
-                <select id="type" name="type" class="block w-full rounded-md border border-[#d8d2cc] px-3 py-2 text-sm outline-none transition focus:border-counter-primary focus:ring-2 focus:ring-orange-100">
-                    <option value="">Todos</option>
-                    <option value="shortage" @selected(($filters['type'] ?? '') === 'shortage')>Falta física</option>
-                    <option value="surplus" @selected(($filters['type'] ?? '') === 'surplus')>Sobra física</option>
-                    <option value="none" @selected(($filters['type'] ?? '') === 'none')>Sem divergência</option>
-                </select>
-            </div>
+            <x-dropdown-select name="type" label="Tipo" :selected="$filters['type'] ?? ''" :options="['' => 'Todos', 'shortage' => 'Falta física', 'surplus' => 'Sobra física', 'none' => 'Sem divergência']" class="sm:w-72" />
 
             <div class="flex flex-col-reverse gap-3 sm:flex-row">
                 <a href="{{ route('divergences.index') }}" class="inline-flex items-center justify-center rounded-md border border-[#e5e0dc] px-4 py-2.5 text-sm font-semibold text-[#6f6f6f] transition hover:bg-[#f7f5f3]">

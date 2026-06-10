@@ -8,35 +8,11 @@
 
     <form method="GET" action="{{ route('audit-logs.index') }}" class="mb-4 rounded-lg border border-[#e5e0dc] bg-counter-bg p-4 shadow-sm">
         <div class="grid gap-4 lg:grid-cols-5">
-            <div>
-                <label for="module" class="mb-1 block text-sm font-medium">Módulo</label>
-                <select id="module" name="module" class="block w-full rounded-md border border-[#d8d2cc] px-3 py-2 text-sm outline-none transition focus:border-counter-primary focus:ring-2 focus:ring-orange-100">
-                    <option value="">Todos</option>
-                    @foreach (['categorias' => 'Categorias', 'fornecedores' => 'Fornecedores', 'produtos' => 'Produtos', 'usuarios' => 'Usuários', 'movimentacoes' => 'Movimentações', 'contagens' => 'Contagens'] as $value => $label)
-                        <option value="{{ $value }}" @selected(($filters['module'] ?? '') === $value)>{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
+            <x-dropdown-select name="module" label="Módulo" :selected="$filters['module'] ?? ''" :options="['' => 'Todos', 'categorias' => 'Categorias', 'fornecedores' => 'Fornecedores', 'produtos' => 'Produtos', 'usuarios' => 'Usuários', 'movimentacoes' => 'Movimentações', 'contagens' => 'Contagens']" />
 
-            <div>
-                <label for="action" class="mb-1 block text-sm font-medium">Ação</label>
-                <select id="action" name="action" class="block w-full rounded-md border border-[#d8d2cc] px-3 py-2 text-sm outline-none transition focus:border-counter-primary focus:ring-2 focus:ring-orange-100">
-                    <option value="">Todas</option>
-                    @foreach (['criou' => 'Criou', 'atualizou' => 'Atualizou', 'excluiu' => 'Excluiu', 'registrou' => 'Registrou', 'finalizou' => 'Finalizou', 'aprovou' => 'Aprovou', 'alterou' => 'Alterou'] as $value => $label)
-                        <option value="{{ $value }}" @selected(($filters['action'] ?? '') === $value)>{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
+            <x-dropdown-select name="action" label="Ação" :selected="$filters['action'] ?? ''" :options="['' => 'Todas', 'criou' => 'Criou', 'atualizou' => 'Atualizou', 'excluiu' => 'Excluiu', 'registrou' => 'Registrou', 'finalizou' => 'Finalizou', 'aprovou' => 'Aprovou', 'alterou' => 'Alterou']" />
 
-            <div>
-                <label for="user_id" class="mb-1 block text-sm font-medium">Usuário</label>
-                <select id="user_id" name="user_id" class="block w-full rounded-md border border-[#d8d2cc] px-3 py-2 text-sm outline-none transition focus:border-counter-primary focus:ring-2 focus:ring-orange-100">
-                    <option value="">Todos</option>
-                    @foreach ($users as $user)
-                        <option value="{{ $user->id }}" @selected((string) ($filters['user_id'] ?? '') === (string) $user->id)>{{ $user->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+            <x-dropdown-select name="user_id" label="Usuário" :selected="$filters['user_id'] ?? ''" :options="collect(['' => 'Todos'])->union($users->pluck('name', 'id'))->all()" />
 
             <div>
                 <label for="date_from" class="mb-1 block text-sm font-medium">De</label>

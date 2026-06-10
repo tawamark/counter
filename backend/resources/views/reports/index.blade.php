@@ -56,35 +56,11 @@
             </div>
             <form method="GET" action="{{ route('reports.movements') }}" class="p-4">
                 <div class="grid gap-4 md:grid-cols-2">
-                    <div>
-                        <label for="product_id" class="mb-1 block text-sm font-medium">Produto</label>
-                        <select id="product_id" name="product_id" class="block w-full rounded-md border border-[#d8d2cc] px-3 py-2 text-sm outline-none transition focus:border-counter-primary focus:ring-2 focus:ring-orange-100">
-                            <option value="">Todos</option>
-                            @foreach ($products as $product)
-                                <option value="{{ $product->id }}">{{ $product->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <x-dropdown-select name="product_id" label="Produto" :options="collect(['' => 'Todos'])->union($products->pluck('name', 'id'))->all()" />
 
-                    <div>
-                        <label for="type" class="mb-1 block text-sm font-medium">Tipo</label>
-                        <select id="type" name="type" class="block w-full rounded-md border border-[#d8d2cc] px-3 py-2 text-sm outline-none transition focus:border-counter-primary focus:ring-2 focus:ring-orange-100">
-                            <option value="">Todos</option>
-                            <option value="entry">Entrada</option>
-                            <option value="exit">Saída</option>
-                            <option value="adjustment">Ajuste</option>
-                        </select>
-                    </div>
+                    <x-dropdown-select name="type" id="movement_type" label="Tipo" :options="['' => 'Todos', 'entry' => 'Entrada', 'exit' => 'Saída', 'adjustment' => 'Ajuste']" />
 
-                    <div>
-                        <label for="user_id" class="mb-1 block text-sm font-medium">Usuário</label>
-                        <select id="user_id" name="user_id" class="block w-full rounded-md border border-[#d8d2cc] px-3 py-2 text-sm outline-none transition focus:border-counter-primary focus:ring-2 focus:ring-orange-100">
-                            <option value="">Todos</option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <x-dropdown-select name="user_id" label="Usuário" :options="collect(['' => 'Todos'])->union($users->pluck('name', 'id'))->all()" />
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
@@ -130,12 +106,7 @@
                     </div>
 
                     <form method="GET" action="{{ route('reports.divergences') }}" class="flex flex-col gap-3 sm:flex-row">
-                        <select name="type" class="block rounded-md border border-[#d8d2cc] px-3 py-2 text-sm outline-none transition focus:border-counter-primary focus:ring-2 focus:ring-orange-100">
-                            <option value="">Todos</option>
-                            <option value="shortage">Falta física</option>
-                            <option value="surplus">Sobra física</option>
-                            <option value="none">Sem divergência</option>
-                        </select>
+                        <x-dropdown-select name="type" id="divergence_type" :options="['' => 'Todos', 'shortage' => 'Falta física', 'surplus' => 'Sobra física', 'none' => 'Sem divergência']" class="sm:w-52" />
                         <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
                             <i data-lucide="download" class="size-4"></i>
                             Exportar divergências
