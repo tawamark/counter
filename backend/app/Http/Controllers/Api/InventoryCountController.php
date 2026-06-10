@@ -8,20 +8,29 @@ use App\Models\InventoryCountItem;
 use App\Services\InventoryCountService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\Rule;
 
 class InventoryCountController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $data = $request->validate([
+            'status' => ['nullable', Rule::in(['open', 'in_progress', 'finished', 'approved'])],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        $perPage = $data['per_page'] ?? 15;
+
         $counts = InventoryCount::withCount('items')
             ->where('company_id', $request->user()->company_id)
-            ->whereIn('status', ['open', 'in_progress'])
+            ->when($data['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
+            ->when(! ($data['status'] ?? null), fn ($query) => $query->whereIn('status', ['open', 'in_progress']))
             ->latest()
-            ->get()
-            ->map(fn (InventoryCount $count) => $this->countData($count));
+            ->paginate($perPage)
+            ->withQueryString();
 
-        return $this->success($counts, 'Contagens encontradas com sucesso');
+        return $this->paginatedCounts($counts, 'Contagens encontradas com sucesso');
     }
 
     public function show(Request $request, InventoryCount $inventoryCount): JsonResponse
@@ -35,13 +44,21 @@ class InventoryCountController extends Controller
     {
         abort_unless($inventoryCount->company_id === $request->user()->company_id, 404);
 
+        $data = $request->validate([
+            'sync_status' => ['nullable', Rule::in(['pending', 'synced', 'error'])],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        $perPage = $data['per_page'] ?? 50;
+
         $items = $inventoryCount->items()
             ->with('product')
+            ->when($data['sync_status'] ?? null, fn ($query, $status) => $query->where('sync_status', $status))
             ->orderBy('id')
-            ->get()
-            ->map(fn (InventoryCountItem $item) => $this->itemData($item));
+            ->paginate($perPage)
+            ->withQueryString();
 
-        return $this->success($items, 'Itens encontrados com sucesso');
+        return $this->paginatedItems($items, 'Itens encontrados com sucesso');
     }
 
     public function updateItems(Request $request, InventoryCount $inventoryCount, InventoryCountService $service): JsonResponse
@@ -101,5 +118,35 @@ class InventoryCountController extends Controller
             'data' => $data,
             'message' => $message,
         ]);
+    }
+
+    private function paginatedCounts(LengthAwarePaginator $paginator, string $message): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => collect($paginator->items())->map(fn (InventoryCount $count) => $this->countData($count))->values(),
+            'message' => $message,
+            'meta' => $this->meta($paginator),
+        ]);
+    }
+
+    private function paginatedItems(LengthAwarePaginator $paginator, string $message): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => collect($paginator->items())->map(fn (InventoryCountItem $item) => $this->itemData($item))->values(),
+            'message' => $message,
+            'meta' => $this->meta($paginator),
+        ]);
+    }
+
+    private function meta(LengthAwarePaginator $paginator): array
+    {
+        return [
+            'current_page' => $paginator->currentPage(),
+            'last_page' => $paginator->lastPage(),
+            'per_page' => $paginator->perPage(),
+            'total' => $paginator->total(),
+        ];
     }
 }

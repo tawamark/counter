@@ -242,19 +242,86 @@ Accept: application/json
 
 | Método | Rota | Perfis |
 | --- | --- | --- |
-| `GET` | `/api/products` | `admin`, `stockist`, `counter` |
-| `GET` | `/api/products/search?q=termo` | `admin`, `stockist`, `counter` |
+| `GET` | `/api/products?page=1&per_page=15&q=termo` | `admin`, `stockist`, `counter` |
+| `GET` | `/api/products/search?q=termo&per_page=15` | `admin`, `stockist`, `counter` |
 | `GET` | `/api/products/{id}` | `admin`, `stockist`, `counter` |
 
 ### Rotas de Contagem
 
 | Método | Rota | Perfis |
 | --- | --- | --- |
-| `GET` | `/api/inventory-counts` | `admin`, `counter` |
+| `GET` | `/api/mobile/summary` | `admin`, `counter` |
+| `GET` | `/api/inventory-counts?status=open&per_page=15` | `admin`, `counter` |
 | `GET` | `/api/inventory-counts/{id}` | `admin`, `counter` |
-| `GET` | `/api/inventory-counts/{id}/items` | `admin`, `counter` |
+| `GET` | `/api/inventory-counts/{id}/items?sync_status=pending&per_page=50` | `admin`, `counter` |
 | `POST` | `/api/inventory-counts/{id}/items` | `admin`, `counter` |
 | `POST` | `/api/inventory-counts/{id}/sync` | `admin`, `counter` |
+
+### Paginação
+
+Listagens paginadas retornam `meta`:
+
+```json
+{
+  "success": true,
+  "data": [],
+  "message": "Produtos encontrados com sucesso",
+  "meta": {
+    "current_page": 1,
+    "last_page": 2,
+    "per_page": 15,
+    "total": 20
+  }
+}
+```
+
+### Filtros Disponíveis
+
+Produtos:
+
+```text
+q          nome, SKU ou código de barras
+per_page   quantidade por página, de 1 a 100
+page       página atual
+```
+
+Contagens:
+
+```text
+status     open, in_progress, finished ou approved
+per_page   quantidade por página, de 1 a 100
+page       página atual
+```
+
+Itens de contagem:
+
+```text
+sync_status   pending, synced ou error
+per_page      quantidade por página, de 1 a 100
+page          página atual
+```
+
+### Resumo Mobile
+
+```http
+GET /api/mobile/summary
+```
+
+Resposta:
+
+```json
+{
+  "success": true,
+  "data": {
+    "open_counts": 2,
+    "pending_items": 4,
+    "synced_items": 5,
+    "counted_items": 5,
+    "last_counted_at": "2026-06-10 16:00:00"
+  },
+  "message": "Resumo mobile encontrado com sucesso"
+}
+```
 
 ### Sincronizar Itens Contados
 

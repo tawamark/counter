@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\InventoryCountController;
+use App\Http\Controllers\Api\MobileSummaryController;
 use App\Http\Controllers\Api\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     });
 
     Route::middleware('role:admin,counter')->group(function (): void {
+        Route::get('/mobile/summary', MobileSummaryController::class);
         Route::get('/inventory-counts', [InventoryCountController::class, 'index']);
         Route::get('/inventory-counts/{inventoryCount}', [InventoryCountController::class, 'show']);
         Route::get('/inventory-counts/{inventoryCount}/items', [InventoryCountController::class, 'items']);

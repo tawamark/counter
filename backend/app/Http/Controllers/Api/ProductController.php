@@ -6,18 +6,28 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $data = $request->validate([
+            'q' => ['nullable', 'string', 'max:255'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        $term = $data['q'] ?? '';
+        $perPage = $data['per_page'] ?? 15;
+
         $products = Product::with(['category', 'supplier'])
             ->where('company_id', $request->user()->company_id)
+            ->when($term !== '', fn ($query) => $this->applySearch($query, $term))
             ->orderBy('name')
-            ->get()
-            ->map(fn (Product $product) => $this->productData($product));
+            ->paginate($perPage)
+            ->withQueryString();
 
-        return $this->success($products, 'Produtos encontrados com sucesso');
+        return $this->paginated($products, 'Produtos encontrados com sucesso');
     }
 
     public function show(Request $request, Product $product): JsonResponse
@@ -31,23 +41,28 @@ class ProductController extends Controller
     {
         $data = $request->validate([
             'q' => ['nullable', 'string', 'max:255'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
 
         $term = $data['q'] ?? '';
+        $perPage = $data['per_page'] ?? 15;
 
         $products = Product::with(['category', 'supplier'])
             ->where('company_id', $request->user()->company_id)
-            ->when($term !== '', fn ($query) => $query
-                ->where(fn ($query) => $query
-                    ->where('name', 'like', "%{$term}%")
-                    ->orWhere('sku', 'like', "%{$term}%")
-                    ->orWhere('barcode', 'like', "%{$term}%")))
+            ->when($term !== '', fn ($query) => $this->applySearch($query, $term))
             ->orderBy('name')
-            ->limit(30)
-            ->get()
-            ->map(fn (Product $product) => $this->productData($product));
+            ->paginate($perPage)
+            ->withQueryString();
 
-        return $this->success($products, 'Busca realizada com sucesso');
+        return $this->paginated($products, 'Busca realizada com sucesso');
+    }
+
+    private function applySearch($query, string $term)
+    {
+        return $query->where(fn ($query) => $query
+            ->where('name', 'like', "%{$term}%")
+            ->orWhere('sku', 'like', "%{$term}%")
+            ->orWhere('barcode', 'like', "%{$term}%"));
     }
 
     private function productData(Product $product): array
@@ -79,6 +94,21 @@ class ProductController extends Controller
             'success' => true,
             'data' => $data,
             'message' => $message,
+        ]);
+    }
+
+    private function paginated(LengthAwarePaginator $paginator, string $message): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => collect($paginator->items())->map(fn (Product $product) => $this->productData($product))->values(),
+            'message' => $message,
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ],
         ]);
     }
 }

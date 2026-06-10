@@ -42,7 +42,7 @@ class ApiTest extends TestCase
             ->assertJsonPath('message', 'Não autenticado');
     }
 
-    public function test_user_can_list_and_search_products(): void
+    public function test_user_can_list_and_search_products_with_pagination(): void
     {
         $user = $this->createUser();
 
@@ -63,19 +63,22 @@ class ApiTest extends TestCase
         ]);
 
         $this->actingAs($user, 'sanctum')
-            ->getJson('/api/products')
+            ->getJson('/api/products?per_page=1')
             ->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonCount(2, 'data');
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('meta.total', 2)
+            ->assertJsonPath('meta.per_page', 1);
 
         $this->actingAs($user, 'sanctum')
             ->getJson('/api/products/search?q=note')
             ->assertOk()
             ->assertJsonPath('data.0.name', 'Notebook')
-            ->assertJsonCount(1, 'data');
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('meta.total', 1);
     }
 
-    public function test_user_can_list_inventory_counts_and_items(): void
+    public function test_user_can_list_inventory_counts_and_items_with_pagination(): void
     {
         [$user, $count, $item] = $this->createInventoryCount();
 
@@ -83,13 +86,54 @@ class ApiTest extends TestCase
             ->getJson('/api/inventory-counts')
             ->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.0.title', 'Contagem semanal');
+            ->assertJsonPath('data.0.title', 'Contagem semanal')
+            ->assertJsonPath('meta.total', 1);
 
         $this->actingAs($user, 'sanctum')
             ->getJson("/api/inventory-counts/{$count->id}/items")
             ->assertOk()
             ->assertJsonPath('data.0.id', $item->id)
-            ->assertJsonPath('data.0.product.name', 'Notebook');
+            ->assertJsonPath('data.0.product.name', 'Notebook')
+            ->assertJsonPath('meta.total', 1);
+    }
+
+    public function test_user_can_filter_inventory_counts_and_items(): void
+    {
+        [$user, $count, $item] = $this->createInventoryCount();
+
+        InventoryCount::create([
+            'company_id' => $user->company_id,
+            'created_by' => $user->id,
+            'title' => 'Contagem finalizada',
+            'status' => 'finished',
+            'started_at' => now(),
+            'finished_at' => now(),
+        ]);
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson('/api/inventory-counts?status=finished')
+            ->assertOk()
+            ->assertJsonPath('data.0.title', 'Contagem finalizada')
+            ->assertJsonPath('meta.total', 1);
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson("/api/inventory-counts/{$count->id}/items?sync_status=pending")
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $item->id)
+            ->assertJsonPath('meta.total', 1);
+    }
+
+    public function test_user_can_get_mobile_summary(): void
+    {
+        [$user] = $this->createInventoryCount();
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson('/api/mobile/summary')
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.open_counts', 1)
+            ->assertJsonPath('data.pending_items', 1)
+            ->assertJsonPath('data.synced_items', 0);
     }
 
     public function test_user_can_sync_inventory_count_items(): void
@@ -125,7 +169,8 @@ class ApiTest extends TestCase
 
         $this->actingAs($user, 'sanctum')
             ->getJson("/api/inventory-counts/{$count->id}")
-            ->assertNotFound();
+            ->assertNotFound()
+            ->assertJsonPath('message', 'Recurso não encontrado');
 
         $this->assertNotSame($user->company_id, $otherUser->company_id);
     }
