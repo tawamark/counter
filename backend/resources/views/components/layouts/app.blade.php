@@ -23,13 +23,13 @@
 
         <x-confirm-modal />
 
-        <div x-data="{ mobileMenuOpen: false }" x-on:keydown.escape.window="mobileMenuOpen = false" class="min-h-screen lg:flex">
-            <aside class="hidden w-64 border-r border-[#e5e0dc] bg-counter-bg lg:block">
-                <div class="flex h-16 items-center border-b border-[#e5e0dc] px-6">
+        <div x-data="{ mobileMenuOpen: false }" x-on:keydown.escape.window="mobileMenuOpen = false" class="min-h-screen">
+            <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-[#e5e0dc] bg-counter-bg lg:flex">
+                <div class="flex h-16 shrink-0 items-center border-b border-[#e5e0dc] px-6">
                     <img src="{{ asset('images/logo.svg') }}" alt="Counter" class="h-10 w-auto">
                 </div>
 
-                <nav class="space-y-1 px-3 py-4">
+                <nav class="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-4">
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('dashboard') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
                         <i data-lucide="layout-dashboard" class="size-4"></i>
                         Dashboard
@@ -158,8 +158,8 @@
                 </aside>
             </div>
 
-            <div class="min-w-0 flex-1">
-                <header class="flex h-16 items-center justify-between border-b border-[#e5e0dc] bg-counter-bg px-4 sm:px-6">
+            <div class="min-w-0 lg:pl-64">
+                <header class="fixed left-0 right-0 top-0 z-30 flex h-16 items-center justify-between border-b border-[#e5e0dc] bg-counter-bg px-4 sm:px-6 lg:left-64">
                     <div class="flex min-w-0 items-center gap-3">
                         <button type="button" x-on:click="mobileMenuOpen = true" class="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-[#e5e0dc] text-[#6f6f6f] transition hover:bg-orange-50 hover:text-counter-primary lg:hidden" aria-label="Abrir menu">
                             <i data-lucide="menu" class="size-4"></i>
@@ -184,7 +184,7 @@
                     </div>
                 </header>
 
-                <main class="p-4 sm:p-6">
+                <main class="px-4 pb-4 pt-20 sm:px-6 sm:pb-6">
                     {{ $slot }}
                 </main>
             </div>
