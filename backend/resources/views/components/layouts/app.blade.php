@@ -22,6 +22,10 @@
                         <i data-lucide="tags" class="size-4"></i>
                         Categorias
                     </a>
+                    <a href="{{ route('suppliers.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('suppliers.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                        <i data-lucide="truck" class="size-4"></i>
+                        Fornecedores
+                    </a>
                 </nav>
             </aside>
 
