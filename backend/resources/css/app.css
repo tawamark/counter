@@ -12,3 +12,7 @@
     --color-counter-bg: #ffffff;
     --color-counter-text: #323232;
 }
+
+[x-cloak] {
+    display: none !important;
+}
