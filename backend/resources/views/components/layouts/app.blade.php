@@ -14,9 +14,13 @@
                 </div>
 
                 <nav class="space-y-1 px-3 py-4">
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 rounded-md bg-orange-50 px-3 py-2 text-sm font-medium text-counter-primary">
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('dashboard') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
                         <i data-lucide="layout-dashboard" class="size-4"></i>
                         Dashboard
+                    </a>
+                    <a href="{{ route('categories.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('categories.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                        <i data-lucide="tags" class="size-4"></i>
+                        Categorias
                     </a>
                 </nav>
             </aside>
