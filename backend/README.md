@@ -1,8 +1,8 @@
 # Counter Backend
 
-Backend web e API REST do Counter, sistema para controle, movimentação e contagem de estoque.
+Backend web e API REST do Counter, sistema para controle, movimentação, contagem, auditoria e relatórios de estoque.
 
-O projeto usa Laravel como base da aplicação web, da API REST e das regras de negócio que integram o sistema web ao aplicativo mobile Android.
+O backend concentra a aplicação web em Laravel, a API REST usada pelo futuro aplicativo mobile Android e as regras de negócio do estoque.
 
 ## Tecnologias
 
@@ -13,6 +13,7 @@ O projeto usa Laravel como base da aplicação web, da API REST e das regras de 
 - Node.js
 - npm
 - Vite
+- Blade
 - Tailwind CSS
 - Alpine.js
 - Lucide Icons
@@ -23,12 +24,40 @@ O projeto usa Laravel como base da aplicação web, da API REST e das regras de 
 Consulte também:
 
 - [`../docs/guia-desenvolvimento.md`](../docs/guia-desenvolvimento.md)
-- [`../AGENTS.md`](../AGENTS.md)
-- [`../Documentação Projeto Prog lll.txt`](../Documenta%C3%A7%C3%A3o%20Projeto%20Prog%20lll.txt)
+- [`../docs/ordem-desenvolvimento.md`](../docs/ordem-desenvolvimento.md)
+
+Os arquivos `../AGENTS.md` e `../Documentação Projeto Prog lll.txt` são usados como referência local e não devem ser versionados.
+
+## Módulos Implementados
+
+- Autenticação web
+- Dashboard com indicadores e gráficos
+- Gestão de usuários e perfis
+- Produtos
+- Categorias
+- Fornecedores
+- Movimentações de estoque
+- Contagens de estoque
+- Itens de contagem
+- Finalização e aprovação de contagens
+- Ajustes automáticos após aprovação
+- Divergências entre saldo do sistema e contagem física
+- Relatórios CSV
+- Auditoria administrativa
+- API REST com Sanctum
+- Seeders com dados de demonstração
+
+## Perfis de Acesso
+
+| Perfil | Permissões principais |
+| --- | --- |
+| Administrador | Dashboard, produtos, categorias, fornecedores, usuários, movimentações, contagens, divergências, relatórios, auditoria e aprovação de ajustes |
+| Estoquista | Dashboard, produtos, movimentações e relatórios de estoque/movimentações |
+| Contador | Dashboard, contagens e sincronização de itens pela API |
 
 ## Requisitos Locais
 
-Antes de rodar o backend, confirme que estas ferramentas estão disponíveis:
+Confirme que as ferramentas estão disponíveis:
 
 ```powershell
 php -v
@@ -37,7 +66,7 @@ node -v
 npm -v
 ```
 
-O projeto foi configurado localmente com MySQL do Laragon:
+Configuração local usada com MySQL do Laragon:
 
 ```text
 host: 127.0.0.1
@@ -49,19 +78,14 @@ senha: vazia
 
 ## Instalação
 
-Instale as dependências PHP:
+Instale as dependências:
 
 ```powershell
 composer install
-```
-
-Instale as dependências front-end:
-
-```powershell
 npm install
 ```
 
-Crie o arquivo de ambiente se ele ainda não existir:
+Crie o arquivo de ambiente:
 
 ```powershell
 Copy-Item .env.example .env
@@ -72,8 +96,6 @@ Gere a chave da aplicação:
 ```powershell
 php artisan key:generate
 ```
-
-## Configuração do Banco
 
 Crie o banco no MySQL:
 
@@ -92,22 +114,11 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-Limpe o cache de configuração:
+Limpe o cache e prepare o banco:
 
 ```powershell
 php artisan config:clear
-```
-
-Execute as migrations:
-
-```powershell
-php artisan migrate
-```
-
-Carregue os dados de demonstração:
-
-```powershell
-php artisan db:seed
+php artisan migrate --seed
 ```
 
 ## Usuários de Demonstração
@@ -116,8 +127,8 @@ Todos usam a senha `password`.
 
 | Perfil | E-mail | Acesso principal |
 | --- | --- | --- |
-| Administrador | `admin@counter.test` | Cadastros, contagens, divergências e aprovação de ajustes |
-| Estoquista | `estoquista@counter.test` | Produtos e movimentações de estoque |
+| Administrador | `admin@counter.test` | Cadastros, contagens, divergências, relatórios, auditoria e aprovação de ajustes |
+| Estoquista | `estoquista@counter.test` | Produtos, movimentações e relatórios operacionais |
 | Contador | `contador@counter.test` | Contagens e sincronização de itens contados |
 
 ## Executando o Projeto
@@ -162,9 +173,66 @@ Ou pelo script do Composer:
 composer test
 ```
 
+## Rotas Web Principais
+
+| Rota | Descrição | Perfis |
+| --- | --- | --- |
+| `/login` | Login web | Público |
+| `/dashboard` | Indicadores, gráficos e atalhos | `admin`, `stockist`, `counter` |
+| `/products` | Listagem de produtos | `admin`, `stockist` |
+| `/products/create` | Cadastro de produtos | `admin` |
+| `/categories` | Categorias | `admin` |
+| `/suppliers` | Fornecedores | `admin` |
+| `/users` | Usuários | `admin` |
+| `/stock-movements` | Histórico e filtros de movimentações | `admin`, `stockist` |
+| `/stock-movements/create` | Registro de entrada, saída ou ajuste | `admin`, `stockist` |
+| `/inventory-counts` | Contagens | `admin`, `counter` |
+| `/inventory-counts/create` | Criação de contagens | `admin` |
+| `/divergences` | Divergências de contagem | `admin` |
+| `/reports` | Relatórios CSV | `admin`, `stockist` |
+| `/audit-logs` | Auditoria administrativa | `admin` |
+
+## Relatórios CSV
+
+| Rota | Descrição | Perfis |
+| --- | --- | --- |
+| `/reports/stock.csv` | Estoque atual com produto, SKU, categoria, fornecedor, unidade, quantidade e preços | `admin`, `stockist` |
+| `/reports/movements.csv` | Movimentações com filtros por produto, tipo, usuário e período | `admin`, `stockist` |
+| `/reports/divergences.csv` | Divergências por contagem, produto, saldo, quantidade contada e tipo | `admin` |
+
+## Auditoria
+
+A auditoria registra ações importantes com empresa, usuário, módulo, ação, descrição, IP, agente do navegador e metadados.
+
+Módulos auditados:
+
+- Categorias
+- Fornecedores
+- Produtos
+- Usuários
+- Movimentações
+- Contagens
+
+Ações auditadas:
+
+- Criação
+- Atualização
+- Exclusão
+- Registro de movimentação
+- Alteração de itens de contagem
+- Finalização de contagem
+- Aprovação de contagem
+
 ## API REST
 
-A API usa Laravel Sanctum com token Bearer. Todas as respostas seguem o padrão:
+A API usa Laravel Sanctum com token Bearer. As rotas protegidas exigem:
+
+```http
+Authorization: Bearer token-gerado
+Accept: application/json
+```
+
+Resposta de sucesso:
 
 ```json
 {
@@ -174,7 +242,7 @@ A API usa Laravel Sanctum com token Bearer. Todas as respostas seguem o padrão:
 }
 ```
 
-Erros de validação seguem o padrão:
+Resposta de erro de validação:
 
 ```json
 {
@@ -184,7 +252,7 @@ Erros de validação seguem o padrão:
 }
 ```
 
-### Login
+## Login API
 
 ```http
 POST /api/login
@@ -221,16 +289,9 @@ Resposta:
 }
 ```
 
+## Rotas da API
+
 ### Autenticação
-
-Envie o token nas rotas protegidas:
-
-```http
-Authorization: Bearer token-gerado
-Accept: application/json
-```
-
-### Rotas de Autenticação
 
 | Método | Rota | Perfil |
 | --- | --- | --- |
@@ -238,7 +299,7 @@ Accept: application/json
 | `POST` | `/api/logout` | Autenticado |
 | `GET` | `/api/me` | Autenticado |
 
-### Rotas de Produtos
+### Produtos
 
 | Método | Rota | Perfis |
 | --- | --- | --- |
@@ -246,7 +307,7 @@ Accept: application/json
 | `GET` | `/api/products/search?q=termo&per_page=15` | `admin`, `stockist`, `counter` |
 | `GET` | `/api/products/{id}` | `admin`, `stockist`, `counter` |
 
-### Rotas de Contagem
+### Contagens
 
 | Método | Rota | Perfis |
 | --- | --- | --- |
@@ -257,25 +318,7 @@ Accept: application/json
 | `POST` | `/api/inventory-counts/{id}/items` | `admin`, `counter` |
 | `POST` | `/api/inventory-counts/{id}/sync` | `admin`, `counter` |
 
-### Paginação
-
-Listagens paginadas retornam `meta`:
-
-```json
-{
-  "success": true,
-  "data": [],
-  "message": "Produtos encontrados com sucesso",
-  "meta": {
-    "current_page": 1,
-    "last_page": 2,
-    "per_page": 15,
-    "total": 20
-  }
-}
-```
-
-### Filtros Disponíveis
+## Filtros da API
 
 Produtos:
 
@@ -301,7 +344,25 @@ per_page      quantidade por página, de 1 a 100
 page          página atual
 ```
 
-### Resumo Mobile
+## Paginação
+
+Listagens paginadas retornam `meta`:
+
+```json
+{
+  "success": true,
+  "data": [],
+  "message": "Produtos encontrados com sucesso",
+  "meta": {
+    "current_page": 1,
+    "last_page": 2,
+    "per_page": 15,
+    "total": 20
+  }
+}
+```
+
+## Resumo Mobile
 
 ```http
 GET /api/mobile/summary
@@ -323,7 +384,7 @@ Resposta:
 }
 ```
 
-### Sincronizar Itens Contados
+## Sincronizar Itens Contados
 
 ```http
 POST /api/inventory-counts/{id}/sync
@@ -376,36 +437,32 @@ npm audit --audit-level=critical
 git diff --check
 ```
 
-Verifique também possíveis problemas de encoding:
+Verifique possíveis problemas de encoding:
 
 ```powershell
 rg -n "\x{00C3}[\x{0080}-\x{00BF}]|\x{00C2}[\x{0080}-\x{00BF}]|\x{FFFD}" . -g "!vendor/**" -g "!node_modules/**" -g "!public/build/**"
 ```
 
-## Estrutura Esperada
+Verifique caracteres invisíveis:
 
-A implementação deve seguir a arquitetura definida no guia de desenvolvimento:
+```powershell
+rg -n "[\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2060}\x{FEFF}]" . -g "!vendor/**" -g "!node_modules/**" -g "!public/build/**"
+```
+
+## Estrutura de Implementação
+
+A implementação segue a arquitetura orientada no guia de desenvolvimento:
 
 ```text
 Controller
 Service
-Repository
 Model
+Migration
+View/API Resource
 Banco MySQL
 ```
 
-As principais áreas previstas são:
-
-- Autenticação
-- Dashboard
-- Produtos
-- Categorias
-- Fornecedores
-- Movimentações de estoque
-- Histórico
-- Contagens de estoque
-- Divergências
-- API REST para o aplicativo mobile
+Regras de negócio relevantes ficam em Services quando o fluxo passa de operações simples de CRUD.
 
 ## Observações
 
@@ -413,3 +470,4 @@ As principais áreas previstas são:
 - O arquivo `.env` não deve ser versionado.
 - O arquivo `.env.example` deve manter valores seguros e reutilizáveis.
 - Textos exibidos ao usuário devem estar em português do Brasil com acentuação correta.
+- Após recriar o banco, rode `php artisan migrate --seed` para recuperar os dados demo.
