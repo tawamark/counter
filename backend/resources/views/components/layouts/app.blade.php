@@ -35,6 +35,10 @@
                             <i data-lucide="truck" class="size-4"></i>
                             Fornecedores
                         </a>
+                        <a href="{{ route('users.index') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('users.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                            <i data-lucide="users" class="size-4"></i>
+                            Usuários
+                        </a>
                     @endif
 
                     @if (in_array(auth()->user()->role, ['admin', 'stockist'], true))
@@ -91,6 +95,10 @@
                             <a href="{{ route('suppliers.index') }}" x-on:click="mobileMenuOpen = false" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('suppliers.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
                                 <i data-lucide="truck" class="size-4"></i>
                                 Fornecedores
+                            </a>
+                            <a href="{{ route('users.index') }}" x-on:click="mobileMenuOpen = false" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ request()->routeIs('users.*') ? 'bg-orange-50 text-counter-primary' : 'text-[#6f6f6f] hover:bg-orange-50 hover:text-counter-primary' }}">
+                                <i data-lucide="users" class="size-4"></i>
+                                Usuários
                             </a>
                         @endif
 

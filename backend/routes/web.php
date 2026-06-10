@@ -8,6 +8,7 @@ use App\Http\Controllers\InventoryCountController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -28,6 +29,7 @@ Route::middleware('auth')->group(function (): void {
         Route::resource('inventory-counts', InventoryCountController::class)->only(['create', 'store']);
         Route::resource('products', ProductController::class)->except(['index', 'show']);
         Route::resource('suppliers', SupplierController::class)->except(['show']);
+        Route::resource('users', UserController::class)->except(['show']);
     });
 
     Route::middleware('role:admin,counter')->group(function (): void {
