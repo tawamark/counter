@@ -9,15 +9,7 @@
     <body class="min-h-screen bg-counter-bg text-counter-text antialiased">
         <main class="grid min-h-screen lg:grid-cols-[1fr_440px]">
             <section class="hidden bg-counter-text px-10 py-12 text-white lg:flex lg:flex-col lg:justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="flex size-10 items-center justify-center rounded-md bg-counter-primary text-white">
-                        <i data-lucide="package" class="size-5"></i>
-                    </div>
-                    <div>
-                        <p class="font-semibold">Counter</p>
-                        <p class="text-sm text-white/70">Controle e contagem de estoque</p>
-                    </div>
-                </div>
+                <img src="{{ asset('images/logo.svg') }}" alt="Counter" class="h-14 w-auto">
 
                 <div class="max-w-xl">
                     <p class="text-sm font-medium text-counter-primary">Sistema web e mobile</p>
@@ -29,11 +21,7 @@
             <section class="flex items-center justify-center px-4 py-10 sm:px-6">
                 <div class="w-full max-w-sm">
                     <div class="mb-8 lg:hidden">
-                        <div class="mb-4 flex size-10 items-center justify-center rounded-md bg-counter-primary text-white">
-                            <i data-lucide="package" class="size-5"></i>
-                        </div>
-                        <h1 class="text-2xl font-semibold">Counter</h1>
-                        <p class="mt-1 text-sm text-[#6f6f6f]">Controle e contagem de estoque</p>
+                        <img src="{{ asset('images/logo.svg') }}" alt="Counter" class="h-14 w-auto">
                     </div>
 
                     <div class="rounded-lg border border-[#e5e0dc] bg-counter-bg p-6 shadow-sm">

@@ -9,14 +9,8 @@
     <body class="min-h-screen bg-[#f7f5f3] text-counter-text antialiased">
         <div class="min-h-screen lg:flex">
             <aside class="hidden w-64 border-r border-[#e5e0dc] bg-counter-bg lg:block">
-                <div class="flex h-16 items-center gap-3 border-b border-[#e5e0dc] px-6">
-                    <div class="flex size-9 items-center justify-center rounded-md bg-counter-primary text-white">
-                        <i data-lucide="package" class="size-5"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold">Counter</p>
-                        <p class="text-xs text-[#6f6f6f]">Controle de estoque</p>
-                    </div>
+                <div class="flex h-16 items-center border-b border-[#e5e0dc] px-6">
+                    <img src="{{ asset('images/logo.svg') }}" alt="Counter" class="h-10 w-auto">
                 </div>
 
                 <nav class="space-y-1 px-3 py-4">
