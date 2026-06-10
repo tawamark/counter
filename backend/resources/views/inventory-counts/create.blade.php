@@ -20,10 +20,18 @@
                 @enderror
             </div>
 
-            <div>
+            <div x-data="{ selectAll() { this.$el.querySelectorAll('input[name=\'product_ids[]\']').forEach((checkbox) => checkbox.checked = true); } }">
                 <div class="mb-2 flex items-center justify-between gap-3">
                     <label class="block text-sm font-medium">Produtos</label>
-                    <span class="text-xs text-[#6f6f6f]">{{ $products->count() }} disponíveis</span>
+                    <div class="flex items-center gap-3">
+                        @if ($products->isNotEmpty())
+                            <button type="button" x-on:click="selectAll()" class="inline-flex items-center gap-1.5 rounded-md border border-[#e5e0dc] px-2.5 py-1.5 text-xs font-semibold text-[#6f6f6f] transition hover:bg-[#f7f5f3] hover:text-counter-primary">
+                                <i data-lucide="check" class="size-3.5"></i>
+                                Selecionar todos
+                            </button>
+                        @endif
+                        <span class="text-xs text-[#6f6f6f]">{{ $products->count() }} disponíveis</span>
+                    </div>
                 </div>
 
                 @error('product_ids')
