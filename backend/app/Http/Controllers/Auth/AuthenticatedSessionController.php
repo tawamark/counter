@@ -21,11 +21,16 @@ class AuthenticatedSessionController extends Controller
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
+        ], [
+            'email.required' => 'Informe o e-mail.',
+            'email.email' => 'Informe um e-mail válido.',
+            'password.required' => 'Informe a senha.',
+            'password.string' => 'Informe uma senha válida.',
         ]);
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             throw ValidationException::withMessages([
-                'email' => 'As credenciais informadas não conferem.',
+                'login' => 'As credenciais informadas não conferem.',
             ]);
         }
 

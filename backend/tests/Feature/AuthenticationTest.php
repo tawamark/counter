@@ -59,4 +59,34 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
     }
+
+    public function test_login_error_uses_general_portuguese_message(): void
+    {
+        Company::create([
+            'name' => 'Counter Demo',
+        ]);
+
+        $this->from('/login')
+            ->post('/login', [
+                'email' => 'admin@counter.test',
+                'password' => 'senha-incorreta',
+            ])
+            ->assertRedirect('/login')
+            ->assertSessionHasErrors([
+                'login' => 'As credenciais informadas não conferem.',
+            ]);
+
+        $this->assertGuest();
+    }
+
+    public function test_login_validation_messages_are_in_portuguese(): void
+    {
+        $this->from('/login')
+            ->post('/login', [])
+            ->assertRedirect('/login')
+            ->assertSessionHasErrors([
+                'email' => 'Informe o e-mail.',
+                'password' => 'Informe a senha.',
+            ]);
+    }
 }

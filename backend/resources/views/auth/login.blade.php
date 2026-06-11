@@ -17,25 +17,36 @@
                     <div class="mb-6">
                         <h1 class="text-xl font-semibold">Entrar</h1>
                         <p class="mt-1 text-sm text-[#6f6f6f]">Informe suas credenciais para acessar o sistema.</p>
+
+                        @if ($errors->any())
+                            <div class="mt-4 space-y-2 rounded-md border border-[#d8d2cc] bg-white px-3 py-3">
+                                @foreach (array_unique($errors->all()) as $message)
+                                    <div class="flex items-start gap-2 text-sm text-red-600">
+                                        <i data-lucide="circle-x" class="mt-0.5 size-4 shrink-0"></i>
+                                        <span>{{ $message }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
 
-                    <form method="POST" action="{{ route('login.store') }}" class="space-y-4">
+                    <form method="POST" action="{{ route('login.store') }}" x-data="{ submitting: false }" x-on:submit="submitting = true" class="space-y-4">
                         @csrf
 
                         <div>
                             <label for="email" class="mb-1 block text-sm font-medium">E-mail</label>
-                            <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="email" class="block w-full rounded-md border border-[#d8d2cc] px-3 py-2 text-sm outline-none transition focus:border-counter-primary focus:ring-2 focus:ring-orange-100">
-                            @error('email')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+                            <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="email" placeholder="exemplo@empresa.com" class="block w-full rounded-md border border-[#d8d2cc] px-3 py-2 text-sm outline-none transition focus:border-counter-primary focus:ring-2 focus:ring-orange-100">
                         </div>
 
-                        <div>
+                        <div x-data="{ showPassword: false }">
                             <label for="password" class="mb-1 block text-sm font-medium">Senha</label>
-                            <input id="password" name="password" type="password" required autocomplete="current-password" class="block w-full rounded-md border border-[#d8d2cc] px-3 py-2 text-sm outline-none transition focus:border-counter-primary focus:ring-2 focus:ring-orange-100">
-                            @error('password')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+                            <div class="relative">
+                                <input id="password" name="password" x-bind:type="showPassword ? 'text' : 'password'" required autocomplete="current-password" class="block w-full rounded-md border border-[#d8d2cc] px-3 py-2 pr-11 text-sm outline-none transition focus:border-counter-primary focus:ring-2 focus:ring-orange-100">
+                                <button type="button" x-on:click="showPassword = ! showPassword" x-bind:aria-label="showPassword ? 'Ocultar senha' : 'Mostrar senha'" class="absolute inset-y-0 right-0 inline-flex w-11 items-center justify-center text-[#6f6f6f] transition hover:text-counter-primary">
+                                    <i x-show="! showPassword" data-lucide="eye" class="size-4"></i>
+                                    <i x-show="showPassword" data-lucide="eye-off" class="size-4"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <label class="flex items-center gap-2 text-sm text-[#6f6f6f]">
@@ -43,8 +54,9 @@
                             Manter conectado
                         </label>
 
-                        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16]">
-                            Entrar
+                        <button type="submit" x-bind:disabled="submitting" class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-counter-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e85f16] disabled:cursor-not-allowed disabled:opacity-80">
+                            <span x-show="submitting" class="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
+                            <span x-text="submitting ? 'Entrando' : 'Entrar'">Entrar</span>
                         </button>
                     </form>
                 </div>
