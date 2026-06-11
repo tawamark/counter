@@ -33,6 +33,9 @@
 - [ ] Relatórios.
 - [ ] Auditoria.
 - [ ] API REST.
+- [ ] Mobile - Login.
+- [ ] Mobile - Contagens.
+- [ ] Mobile - Itens da contagem.
 
 ## Apresentação Final
 
@@ -48,6 +51,7 @@
 - [ ] Explicar API REST.
 - [ ] Explicar arquitetura.
 - [ ] Explicar Design Patterns.
+- [ ] Demonstrar aplicativo mobile.
 
 ## Design Patterns Para Citar
 

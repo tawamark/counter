@@ -29,6 +29,7 @@ Consulte também:
 - [`../docs/design-patterns.md`](../docs/design-patterns.md)
 - [`../docs/documento-tecnico.md`](../docs/documento-tecnico.md)
 - [`../docs/checklist-entrega.md`](../docs/checklist-entrega.md)
+- [`../docs/mobile.md`](../docs/mobile.md)
 
 Os arquivos `../AGENTS.md` e `../Documentação Projeto Prog lll.txt` são usados como referência local e não devem ser versionados.
 

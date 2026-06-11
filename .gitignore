@@ -31,3 +31,11 @@ auth.json
 
 AGENTS.md
 Documentação Projeto Prog lll.txt
+
+mobile/.gradle/
+mobile/.idea/
+mobile/.kotlin/
+mobile/local.properties
+mobile/gradle/gradle-daemon-jvm.properties
+mobile/app/build/
+mobile/build/

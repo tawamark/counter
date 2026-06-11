@@ -194,6 +194,7 @@ erDiagram
 - Paginação padronizada.
 - Loader global e skeleton.
 - API REST com autenticação via Sanctum.
+- Aplicativo mobile Android para contagem de estoque.
 
 ## Perfis de Acesso
 
@@ -259,6 +260,23 @@ flowchart TD
     I --> J[Saldo do produto é ajustado]
 ```
 
+## Aplicativo Mobile
+
+O aplicativo mobile foi desenvolvido em Android nativo com Kotlin, seguindo a estrutura apresentada em aula: Activity, ViewModel, Repository, DAO e Room Database.
+
+O app consome a API REST do Laravel para autenticação, resumo mobile, listagem de contagens, listagem dos itens de contagem e sincronização das quantidades contadas. Também mantém dados localmente com Room Database, permitindo que os itens sejam salvos no dispositivo antes do envio para a API.
+
+Fluxo principal:
+
+1. O contador realiza login no aplicativo.
+2. O app armazena o token de acesso.
+3. O app consulta o resumo mobile e as contagens disponíveis.
+4. O contador abre uma contagem.
+5. O app carrega os itens da contagem e salva os dados localmente.
+6. O contador informa a quantidade física encontrada.
+7. O app salva a quantidade no Room Database.
+8. O contador sincroniza os itens com a API REST.
+
 ## Prints da Aplicação
 
 Prints recomendados para inserir na versão final do documento:
@@ -274,6 +292,9 @@ Prints recomendados para inserir na versão final do documento:
 | Relatórios | `prints/07-relatorios.png` |
 | Auditoria | `prints/08-auditoria.png` |
 | API no cliente REST ou navegador | `prints/09-api.png` |
+| Mobile - Login | `prints/10-mobile-login.png` |
+| Mobile - Contagens | `prints/11-mobile-contagens.png` |
+| Mobile - Itens da contagem | `prints/12-mobile-itens.png` |
 
 ## Dados de Teste
 
