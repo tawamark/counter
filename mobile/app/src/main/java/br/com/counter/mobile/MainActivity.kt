@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity() {
     private fun observe() {
         viewModel.counts.observe(this) {
             adapter.update(it)
+            binding.layoutEmptyCounts.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
         }
 
         viewModel.summary.observe(this) {
@@ -71,6 +72,9 @@ class MainActivity : AppCompatActivity() {
         viewModel.loading.observe(this) {
             binding.layoutLoadingCounts.visibility = if (it) View.VISIBLE else View.GONE
             binding.recyclerCounts.visibility = if (it) View.INVISIBLE else View.VISIBLE
+            if (it) {
+                binding.layoutEmptyCounts.visibility = View.GONE
+            }
             binding.buttonRefreshBottom.isEnabled = !it
             binding.buttonRefreshBottom.text = if (it) "Atualizando" else "Atualizar"
         }

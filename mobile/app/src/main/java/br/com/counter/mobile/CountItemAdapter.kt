@@ -10,6 +10,7 @@ class CountItemAdapter(
     private val onSave: (CountItemEntity, String) -> Unit
 ) : RecyclerView.Adapter<CountItemAdapter.ViewHolder>() {
     private val items = mutableListOf<CountItemEntity>()
+    private var savingItemId: Int? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = RowCountItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -30,13 +31,23 @@ class CountItemAdapter(
         notifyDataSetChanged()
     }
 
+    fun updateSavingItem(itemId: Int?) {
+        savingItemId = itemId
+        notifyDataSetChanged()
+    }
+
     inner class ViewHolder(private val binding: RowCountItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: CountItemEntity) {
+            val isSaving = savingItemId == item.id
+
             binding.textName.text = item.productName
             binding.textDetails.text = details(item)
             binding.textStatus.text = syncStatusLabel(item)
             binding.viewStatusDot.background = ContextCompat.getDrawable(binding.root.context, syncStatusDot(item))
             binding.editQuantity.setText(item.countedQuantity?.toString() ?: "")
+            binding.editQuantity.isEnabled = !isSaving
+            binding.buttonSave.isEnabled = !isSaving
+            binding.buttonSave.text = if (isSaving) "Salvando" else "Salvar"
             binding.buttonSave.setOnClickListener {
                 onSave(item, binding.editQuantity.text.toString())
             }

@@ -1,6 +1,7 @@
 package br.com.counter.mobile
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -49,12 +50,28 @@ class CountItemsActivity : AppCompatActivity() {
     private fun observe() {
         viewModel.items.observe(this) {
             adapter.update(it)
+            binding.layoutEmptyItems.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
         }
 
         viewModel.message.observe(this) {
             if (!it.isNullOrBlank()) {
                 UiFeedback.showToast(this, it)
             }
+        }
+
+        viewModel.loading.observe(this) {
+            binding.layoutLoadingItems.visibility = if (it) View.VISIBLE else View.GONE
+            binding.recyclerItems.visibility = if (it) View.INVISIBLE else View.VISIBLE
+            if (it) {
+                binding.layoutEmptyItems.visibility = View.GONE
+            }
+            binding.buttonSyncBottom.isEnabled = !it
+            binding.buttonBack.isEnabled = !it
+            binding.buttonSyncBottom.text = if (it) "Sincronizando" else "Sincronizar"
+        }
+
+        viewModel.savingItemId.observe(this) {
+            adapter.updateSavingItem(it)
         }
     }
 

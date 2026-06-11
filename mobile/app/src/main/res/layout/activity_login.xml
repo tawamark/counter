@@ -12,9 +12,16 @@
         android:orientation="vertical"
         android:padding="24dp">
 
+        <ImageView
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:contentDescription="Counter"
+            android:src="@drawable/ic_counter_logo" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
             android:text="Counter"
             android:textColor="@color/counter_text"
             android:textSize="32sp"

@@ -119,6 +119,34 @@
                 android:textColor="@color/counter_muted"
                 android:textSize="14sp" />
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_empty_counts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="28dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Nenhuma contagem disponível"
+                android:textColor="@color/counter_text"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="Toque em Atualizar para buscar as contagens liberadas para este usuário."
+                android:textColor="@color/counter_muted"
+                android:textSize="14sp" />
+        </LinearLayout>
     </FrameLayout>
 
     <LinearLayout

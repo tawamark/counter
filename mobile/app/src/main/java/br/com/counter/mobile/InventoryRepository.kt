@@ -18,7 +18,7 @@ class InventoryRepository(context: Context) {
                 Result.failure(Exception(body?.message ?: "Não foi possível carregar o resumo."))
             }
         } catch (exception: Exception) {
-            Result.failure(Exception(exception.message ?: "Não foi possível conectar à API."))
+            Result.failure(Exception(connectionMessage()))
         }
     }
 
@@ -46,7 +46,7 @@ class InventoryRepository(context: Context) {
             if (localCounts.isNotEmpty()) {
                 Result.success(localCounts)
             } else {
-                Result.failure(Exception(exception.message ?: "Não foi possível conectar à API."))
+                Result.failure(Exception(connectionMessage()))
             }
         }
     }
@@ -86,7 +86,7 @@ class InventoryRepository(context: Context) {
             if (localItems.isNotEmpty()) {
                 Result.success(localItems)
             } else {
-                Result.failure(Exception(exception.message ?: "Não foi possível conectar à API."))
+                Result.failure(Exception(connectionMessage()))
             }
         }
     }
@@ -126,7 +126,11 @@ class InventoryRepository(context: Context) {
                 Result.failure(Exception(body?.message ?: "Não foi possível sincronizar os itens."))
             }
         } catch (exception: Exception) {
-            Result.failure(Exception(exception.message ?: "Não foi possível conectar à API."))
+            Result.failure(Exception(connectionMessage()))
         }
+    }
+
+    private fun connectionMessage(): String {
+        return "Não foi possível conectar à API. Verifique a internet e se o servidor está ativo."
     }
 }
