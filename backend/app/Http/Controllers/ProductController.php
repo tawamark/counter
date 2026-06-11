@@ -2,25 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\ProductData;
 use App\Http\Requests\ProductRequest;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Supplier;
+use App\Repositories\ProductRepository;
 use App\Services\AuditLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    public function index(): View
+    public function index(ProductRepository $products): View
     {
-        $products = Product::with(['category', 'supplier'])
-            ->where('company_id', auth()->user()->company_id)
-            ->orderBy('name')
-            ->paginate(10);
-
         return view('products.index', [
-            'products' => $products,
+            'products' => $products->paginateForCompany(auth()->user()->company_id),
         ]);
     }
 
@@ -29,12 +26,12 @@ class ProductController extends Controller
         return view('products.create', $this->formOptions());
     }
 
-    public function store(ProductRequest $request, AuditLogService $auditLogService): RedirectResponse
+    public function store(ProductRequest $request, ProductRepository $products, AuditLogService $auditLogService): RedirectResponse
     {
-        $product = Product::create([
-            'company_id' => $request->user()->company_id,
-            ...$request->validated(),
-        ]);
+        $product = $products->createForCompany(
+            $request->user()->company_id,
+            ProductData::fromArray($request->validated())
+        );
 
         $auditLogService->record(auth()->user(), 'produtos', 'criou', 'Produto cadastrado: '.$product->name, $product, [
             'sku' => $product->sku,
@@ -55,11 +52,11 @@ class ProductController extends Controller
         ]);
     }
 
-    public function update(ProductRequest $request, Product $product, AuditLogService $auditLogService): RedirectResponse
+    public function update(ProductRequest $request, Product $product, ProductRepository $products, AuditLogService $auditLogService): RedirectResponse
     {
         $this->authorizeProduct($product);
 
-        $product->update($request->validated());
+        $products->update($product, ProductData::fromArray($request->validated()));
 
         $auditLogService->record(auth()->user(), 'produtos', 'atualizou', 'Produto atualizado: '.$product->name, $product, [
             'sku' => $product->sku,

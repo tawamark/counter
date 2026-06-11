@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\Product;
+use App\Repositories\ProductRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -12,7 +13,7 @@ class ProductController extends Controller
 {
     use ApiResponse;
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request, ProductRepository $products): JsonResponse
     {
         $data = $request->validate([
             'q' => ['nullable', 'string', 'max:255'],
@@ -22,12 +23,7 @@ class ProductController extends Controller
         $term = $data['q'] ?? '';
         $perPage = $data['per_page'] ?? 15;
 
-        $products = Product::with(['category', 'supplier'])
-            ->where('company_id', $request->user()->company_id)
-            ->when($term !== '', fn ($query) => $this->applySearch($query, $term))
-            ->orderBy('name')
-            ->paginate($perPage)
-            ->withQueryString();
+        $products = $products->paginatedSearchForCompany($request->user()->company_id, $term, $perPage);
 
         return $this->paginated($products, fn (Product $product) => $this->productData($product), 'Produtos encontrados com sucesso');
     }
@@ -39,7 +35,7 @@ class ProductController extends Controller
         return $this->success($this->productData($product->load(['category', 'supplier'])), 'Produto encontrado com sucesso');
     }
 
-    public function search(Request $request): JsonResponse
+    public function search(Request $request, ProductRepository $products): JsonResponse
     {
         $data = $request->validate([
             'q' => ['nullable', 'string', 'max:255'],
@@ -49,22 +45,9 @@ class ProductController extends Controller
         $term = $data['q'] ?? '';
         $perPage = $data['per_page'] ?? 15;
 
-        $products = Product::with(['category', 'supplier'])
-            ->where('company_id', $request->user()->company_id)
-            ->when($term !== '', fn ($query) => $this->applySearch($query, $term))
-            ->orderBy('name')
-            ->paginate($perPage)
-            ->withQueryString();
+        $products = $products->paginatedSearchForCompany($request->user()->company_id, $term, $perPage);
 
         return $this->paginated($products, fn (Product $product) => $this->productData($product), 'Busca realizada com sucesso');
-    }
-
-    private function applySearch($query, string $term)
-    {
-        return $query->where(fn ($query) => $query
-            ->where('name', 'like', "%{$term}%")
-            ->orWhere('sku', 'like', "%{$term}%")
-            ->orWhere('barcode', 'like', "%{$term}%"));
     }
 
     private function productData(Product $product): array

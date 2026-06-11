@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\StockMovementData;
 use App\Http\Requests\StoreStockMovementRequest;
-use App\Models\Product;
-use App\Models\StockMovement;
 use App\Models\User;
+use App\Repositories\ProductRepository;
+use App\Repositories\StockMovementRepository;
 use App\Services\StockMovementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ use Illuminate\View\View;
 
 class StockMovementController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, ProductRepository $products, StockMovementRepository $stockMovements): View
     {
         $companyId = auth()->user()->company_id;
 
@@ -26,55 +27,37 @@ class StockMovementController extends Controller
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
         ]);
 
-        $movements = StockMovement::with(['product', 'user'])
-            ->where('company_id', $companyId)
-            ->when($filters['product_id'] ?? null, fn ($query, $productId) => $query->where('product_id', $productId))
-            ->when($filters['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
-            ->when($filters['user_id'] ?? null, fn ($query, $userId) => $query->where('user_id', $userId))
-            ->when($filters['date_from'] ?? null, fn ($query, $date) => $query->whereDate('created_at', '>=', $date))
-            ->when($filters['date_to'] ?? null, fn ($query, $date) => $query->whereDate('created_at', '<=', $date))
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
-
         return view('stock-movements.index', [
-            'movements' => $movements,
-            'products' => $this->products(),
+            'movements' => $stockMovements->paginateForCompany($companyId, $filters),
+            'products' => $products->listForCompany($companyId),
             'users' => User::where('company_id', $companyId)->orderBy('name')->get(),
             'filters' => $filters,
         ]);
     }
 
-    public function create(): View
+    public function create(ProductRepository $products): View
     {
         return view('stock-movements.create', [
-            'products' => $this->products(),
+            'products' => $products->listForCompany(auth()->user()->company_id),
         ]);
     }
 
-    public function store(StoreStockMovementRequest $request, StockMovementService $service): RedirectResponse
+    public function store(StoreStockMovementRequest $request, ProductRepository $products, StockMovementService $service): RedirectResponse
     {
         $companyId = $request->user()->company_id;
-        $data = $request->validated();
-        $product = Product::where('company_id', $companyId)->findOrFail($data['product_id']);
+        $data = StockMovementData::fromArray($request->validated());
+        $product = $products->findForCompany($companyId, $data->productId);
 
         $service->register(
             $request->user(),
             $product,
-            $data['type'],
-            (float) $data['quantity'],
-            $data['reason'] ?? null
+            $data->type,
+            $data->quantity,
+            $data->reason
         );
 
         return redirect()
             ->route('stock-movements.index')
             ->with('status', 'Movimentação registrada com sucesso.');
-    }
-
-    private function products()
-    {
-        return Product::where('company_id', auth()->user()->company_id)
-            ->orderBy('name')
-            ->get();
     }
 }

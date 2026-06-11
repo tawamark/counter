@@ -26,6 +26,9 @@ Consulte também:
 - [`../docs/guia-desenvolvimento.md`](../docs/guia-desenvolvimento.md)
 - [`../docs/ordem-desenvolvimento.md`](../docs/ordem-desenvolvimento.md)
 - [`../docs/api-mobile.md`](../docs/api-mobile.md)
+- [`../docs/design-patterns.md`](../docs/design-patterns.md)
+- [`../docs/documento-tecnico.md`](../docs/documento-tecnico.md)
+- [`../docs/checklist-entrega.md`](../docs/checklist-entrega.md)
 
 Os arquivos `../AGENTS.md` e `../Documentação Projeto Prog lll.txt` são usados como referência local e não devem ser versionados.
 
@@ -457,7 +460,9 @@ A implementação segue a arquitetura orientada no guia de desenvolvimento:
 ```text
 Controller
 Service
+Repository
 Model
+DTO
 Migration
 View/API Resource
 Banco MySQL

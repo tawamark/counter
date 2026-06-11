@@ -3,24 +3,23 @@
 namespace App\Services;
 
 use App\Models\InventoryCount;
-use App\Models\Product;
 use App\Models\User;
+use App\Repositories\InventoryCountRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class InventoryCountService
 {
-    public function __construct(private readonly AuditLogService $auditLogService)
-    {
+    public function __construct(
+        private readonly AuditLogService $auditLogService,
+        private readonly InventoryCountRepository $inventoryCounts,
+    ) {
     }
 
     public function create(User $user, string $title, array $productIds): InventoryCount
     {
         return DB::transaction(function () use ($user, $title, $productIds): InventoryCount {
-            $products = Product::where('company_id', $user->company_id)
-                ->whereIn('id', $productIds)
-                ->orderBy('name')
-                ->get();
+            $products = $this->inventoryCounts->productsForCountCreation($user->company_id, $productIds);
 
             $count = InventoryCount::create([
                 'company_id' => $user->company_id,

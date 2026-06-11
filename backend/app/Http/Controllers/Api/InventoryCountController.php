@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\InventoryCount;
 use App\Models\InventoryCountItem;
+use App\Repositories\InventoryCountRepository;
 use App\Services\InventoryCountService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class InventoryCountController extends Controller
 {
     use ApiResponse;
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request, InventoryCountRepository $inventoryCounts): JsonResponse
     {
         $data = $request->validate([
             'status' => ['nullable', Rule::in(['open', 'in_progress', 'finished', 'approved'])],
@@ -24,13 +25,7 @@ class InventoryCountController extends Controller
 
         $perPage = $data['per_page'] ?? 15;
 
-        $counts = InventoryCount::withCount('items')
-            ->where('company_id', $request->user()->company_id)
-            ->when($data['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
-            ->when(! ($data['status'] ?? null), fn ($query) => $query->whereIn('status', ['open', 'in_progress']))
-            ->latest()
-            ->paginate($perPage)
-            ->withQueryString();
+        $counts = $inventoryCounts->paginatedForApi($request->user()->company_id, $data, $perPage);
 
         return $this->paginated($counts, fn (InventoryCount $count) => $this->countData($count), 'Contagens encontradas com sucesso');
     }

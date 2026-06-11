@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\InventoryCountData;
 use App\Http\Requests\StoreInventoryCountRequest;
 use App\Http\Requests\UpdateInventoryCountItemsRequest;
 use App\Models\InventoryCount;
-use App\Models\Product;
+use App\Repositories\InventoryCountRepository;
 use App\Services\InventoryCountService;
 use App\Services\StockMovementService;
 use Illuminate\Http\RedirectResponse;
@@ -13,30 +14,24 @@ use Illuminate\View\View;
 
 class InventoryCountController extends Controller
 {
-    public function index(): View
+    public function index(InventoryCountRepository $inventoryCounts): View
     {
-        $counts = InventoryCount::with('creator')
-            ->withCount('items')
-            ->where('company_id', auth()->user()->company_id)
-            ->latest()
-            ->paginate(10);
-
         return view('inventory-counts.index', [
-            'counts' => $counts,
+            'counts' => $inventoryCounts->paginateForCompany(auth()->user()->company_id),
         ]);
     }
 
-    public function create(): View
+    public function create(InventoryCountRepository $inventoryCounts): View
     {
         return view('inventory-counts.create', [
-            'products' => $this->products(),
+            'products' => $inventoryCounts->productsForCompany(auth()->user()->company_id),
         ]);
     }
 
     public function store(StoreInventoryCountRequest $request, InventoryCountService $service): RedirectResponse
     {
-        $data = $request->validated();
-        $count = $service->create($request->user(), $data['title'], $data['product_ids']);
+        $data = InventoryCountData::fromArray($request->validated());
+        $count = $service->create($request->user(), $data->title, $data->productIds);
 
         return redirect()
             ->route('inventory-counts.show', $count)
@@ -85,12 +80,5 @@ class InventoryCountController extends Controller
         return redirect()
             ->route('inventory-counts.show', $inventoryCount)
             ->with('status', 'Ajustes aprovados com sucesso.');
-    }
-
-    private function products()
-    {
-        return Product::where('company_id', auth()->user()->company_id)
-            ->orderBy('name')
-            ->get();
     }
 }
