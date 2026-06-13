@@ -1,7 +1,7 @@
 # Counter
 
 <p align="center">
-  <img src="backend/public/images/logo.svg" alt="Counter" width="220">
+  <img src="backend/public/images/logo-white.svg" alt="Counter" width="220">
 </p>
 
 <p align="center">
