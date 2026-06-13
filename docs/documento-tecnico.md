@@ -8,7 +8,7 @@ Counter
 
 O Counter é um sistema web para controle, movimentação, contagem e auditoria de estoque. A solução permite que uma empresa cadastre produtos, categorias, fornecedores e usuários, registre entradas, saídas e ajustes, realize contagens físicas, acompanhe divergências e exporte relatórios.
 
-O projeto também possui uma API REST preparada para integração com um aplicativo mobile de contagem de estoque.
+O projeto também possui uma API REST integrada ao aplicativo Android nativo de contagem de estoque.
 
 ## Tecnologias Utilizadas
 
@@ -279,7 +279,7 @@ Fluxo principal:
 
 ## Prints da Aplicação
 
-Prints recomendados para inserir na versão final do documento:
+Prints usados ou recomendados para a versão final do documento:
 
 | Tela | Arquivo sugerido |
 | --- | --- |
@@ -323,7 +323,7 @@ Usuários de demonstração:
 - Separar corretamente responsabilidades entre controller, service, repository e model.
 - Garantir que a quantidade de estoque fosse alterada somente por movimentações ou ajustes aprovados.
 - Criar uma interface consistente com componentes globais de toast, modal, paginação e loaders.
-- Padronizar respostas da API para facilitar integração futura com mobile.
+- Padronizar respostas da API para facilitar a integração com o aplicativo Android.
 - Manter isolamento por empresa para evitar acesso a dados indevidos.
 - Criar dados de teste suficientes para demonstrar o sistema.
 
@@ -340,7 +340,8 @@ Tempo sugerido: 5 a 10 minutos.
 7. Demonstrar aprovação de ajuste.
 8. Mostrar relatório CSV.
 9. Mostrar rapidamente a API REST.
-10. Explicar arquitetura e Design Patterns no código.
+10. Demonstrar o aplicativo Android.
+11. Explicar arquitetura e Design Patterns no código.
 
 ## Verificações de Qualidade
 
@@ -352,6 +353,11 @@ npm run build
 composer audit
 npm audit --audit-level=critical
 git diff --check
+```
+
+```powershell
+cd mobile
+.\gradlew.bat assembleDebug
 ```
 
 Também são verificadas possíveis falhas de encoding, caracteres invisíveis e acentuação em português nos textos visíveis ao usuário.

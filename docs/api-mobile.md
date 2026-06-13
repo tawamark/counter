@@ -1,6 +1,6 @@
 # API Mobile Counter
 
-Contrato da API REST usada pelo aplicativo mobile.
+Contrato da API REST usada pelo aplicativo Android do Counter.
 
 ## Base
 
@@ -8,8 +8,9 @@ Contrato da API REST usada pelo aplicativo mobile.
 - Autenticação: Bearer Token via Laravel Sanctum
 - Header obrigatório após login: `Authorization: Bearer {token}`
 - Formato: JSON
+- Perfis permitidos no mobile: `admin` e `counter`
 
-## Resposta de sucesso
+## Resposta de Sucesso
 
 ```json
 {
@@ -19,7 +20,7 @@ Contrato da API REST usada pelo aplicativo mobile.
 }
 ```
 
-## Resposta paginada
+## Resposta Paginada
 
 ```json
 {
@@ -35,7 +36,7 @@ Contrato da API REST usada pelo aplicativo mobile.
 }
 ```
 
-## Resposta de erro
+## Resposta de Erro
 
 ```json
 {
@@ -55,7 +56,7 @@ Body:
 
 ```json
 {
-  "email": "admin@counter.test",
+  "email": "contador@counter.test",
   "password": "password"
 }
 ```
@@ -68,10 +69,10 @@ Resposta:
   "data": {
     "token": "token",
     "user": {
-      "id": 1,
-      "name": "Administrador",
-      "email": "admin@counter.test",
-      "role": "admin",
+      "id": 3,
+      "name": "Contador",
+      "email": "contador@counter.test",
+      "role": "counter",
       "company": {
         "id": 1,
         "name": "Counter Demo"
@@ -82,7 +83,7 @@ Resposta:
 }
 ```
 
-### Usuário autenticado
+### Usuário Autenticado
 
 `GET /api/me`
 
@@ -92,7 +93,9 @@ Resposta:
 
 ## Produtos
 
-### Listar produtos
+As rotas de produtos são usadas para consulta e busca. Elas são permitidas para `admin`, `stockist` e `counter`.
+
+### Listar Produtos
 
 `GET /api/products`
 
@@ -101,15 +104,15 @@ Query:
 - `q`: busca por nome, SKU ou código de barras.
 - `per_page`: quantidade por página, entre 1 e 100.
 
-### Buscar produtos
+### Buscar Produtos
 
 `GET /api/products/search`
 
 Aceita os mesmos parâmetros de `/api/products`.
 
-### Detalhar produto
+### Detalhar Produto
 
-`GET /api/products/{id}`
+`GET /api/products/{product}`
 
 Campos principais retornados:
 
@@ -125,9 +128,23 @@ Campos principais retornados:
 - `category`
 - `supplier`
 
+## Resumo Mobile
+
+`GET /api/mobile/summary`
+
+Retorna:
+
+- `open_counts`
+- `pending_items`
+- `synced_items`
+- `counted_items`
+- `last_counted_at`
+
 ## Contagens
 
-### Listar contagens
+As rotas de contagens mobile são permitidas para `admin` e `counter`.
+
+### Listar Contagens
 
 `GET /api/inventory-counts`
 
@@ -136,11 +153,11 @@ Query:
 - `status`: `open`, `in_progress`, `finished` ou `approved`.
 - `per_page`: quantidade por página, entre 1 e 100.
 
-Quando `status` não é informado, a API retorna contagens `open` e `in_progress`.
+Quando `status` não é informado, a API retorna contagens abertas e em andamento.
 
-### Detalhar contagem
+### Detalhar Contagem
 
-`GET /api/inventory-counts/{id}`
+`GET /api/inventory-counts/{inventoryCount}`
 
 Campos principais retornados:
 
@@ -152,9 +169,9 @@ Campos principais retornados:
 - `finished_at`
 - `approved_at`
 
-### Listar itens da contagem
+### Listar Itens da Contagem
 
-`GET /api/inventory-counts/{id}/items`
+`GET /api/inventory-counts/{inventoryCount}/items`
 
 Query:
 
@@ -171,9 +188,11 @@ Campos principais retornados:
 - `sync_status`
 - `counted_at`
 
-### Enviar itens contados
+O campo `product` contém dados como nome, SKU, código de barras e unidade de medida.
 
-`POST /api/inventory-counts/{id}/items`
+### Enviar Itens Contados
+
+`POST /api/inventory-counts/{inventoryCount}/items`
 
 Body:
 
@@ -188,25 +207,13 @@ Body:
 }
 ```
 
-### Sincronizar itens contados
+### Sincronizar Itens Contados
 
-`POST /api/inventory-counts/{id}/sync`
+`POST /api/inventory-counts/{inventoryCount}/sync`
 
-Aceita o mesmo body de `/api/inventory-counts/{id}/items`.
+Aceita o mesmo body de `/api/inventory-counts/{inventoryCount}/items`.
 
-## Resumo mobile
-
-`GET /api/mobile/summary`
-
-Retorna:
-
-- `open_counts`
-- `pending_items`
-- `synced_items`
-- `counted_items`
-- `last_counted_at`
-
-## Códigos de erro esperados
+## Códigos de Erro Esperados
 
 - `401`: usuário não autenticado.
 - `403`: perfil sem permissão.

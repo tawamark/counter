@@ -2,7 +2,7 @@
 
 Backend web e API REST do Counter, sistema para controle, movimentação, contagem, auditoria e relatórios de estoque.
 
-O backend concentra a aplicação web em Laravel, a API REST usada pelo futuro aplicativo mobile Android e as regras de negócio do estoque.
+O backend concentra a aplicação web em Laravel, a API REST usada pelo aplicativo Android e as regras de negócio do estoque.
 
 ## Tecnologias
 

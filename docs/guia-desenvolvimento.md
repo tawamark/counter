@@ -1,101 +1,100 @@
 # Counter - Guia de Desenvolvimento
 
-Este guia resume a documentacao original do projeto Counter em um formato direto para orientar a implementacao do sistema.
+Este guia resume a primeira versão finalizada do projeto Counter e serve como referência rápida para manutenção, apresentação e evolução do sistema.
 
-## 1. Visao Geral
+## 1. Visão Geral
 
-O Counter e um sistema web e mobile para controle, movimentacao e contagem de estoque.
+O Counter é um sistema web e mobile para controle, movimentação e contagem de estoque.
 
-A aplicacao web sera usada para administrar produtos, categorias, fornecedores, movimentacoes, contagens e divergencias. O aplicativo mobile sera usado principalmente pelo contador para registrar a quantidade fisica encontrada no estoque.
+A aplicação web administra produtos, categorias, fornecedores, usuários, movimentações, contagens, divergências, relatórios e auditoria. O aplicativo Android é usado pelo contador para visualizar contagens, registrar quantidades físicas, salvar dados localmente e sincronizar os itens com a API REST.
 
 ## 2. Tecnologias
 
-- Back-end: PHP com Laravel
+- Back-end: PHP 8.2+ com Laravel 12
 - Banco de dados: MySQL
-- Front-end web: Laravel Blade, HTML, Tailwind CSS, Alpine.js e Lucide Icons
-- API: REST com respostas em JSON
+- Front-end web: Blade, Tailwind CSS, Alpine.js, Lucide Icons e Vite
+- API: REST com respostas JSON padronizadas
+- Autenticação API: Laravel Sanctum
 - Mobile: Android nativo com Kotlin
 - Banco local mobile: Room Database
+- Integração mobile: Retrofit e OkHttp
+- Testes: PHPUnit
 - Versionamento: Git e GitHub
 
-## 3. Perfis de Usuario
+## 3. Perfis de Usuário
 
 ### Administrador
 
-Responsavel pelo gerenciamento geral do sistema.
+Responsável pelo gerenciamento geral do sistema.
 
-Permissoes principais:
+Permissões principais:
 
-- Gerenciar usuarios
+- Gerenciar usuários
 - Gerenciar produtos
 - Gerenciar categorias
 - Gerenciar fornecedores
-- Criar contagens de estoque
-- Visualizar divergencias
+- Criar e acompanhar contagens de estoque
+- Visualizar divergências
 - Aprovar ajustes de estoque
-- Acompanhar dashboard e historico
+- Acompanhar dashboard, relatórios e auditoria
 
 ### Estoquista
 
-Responsavel pelas operacoes diarias de estoque.
+Responsável pelas operações diárias de estoque.
 
-Permissoes principais:
+Permissões principais:
 
 - Consultar produtos
 - Registrar entradas de estoque
-- Registrar saidas de estoque
-- Consultar historico de movimentacoes
+- Registrar saídas de estoque
+- Registrar ajustes permitidos
+- Consultar histórico de movimentações
+- Exportar relatórios operacionais
 
 ### Contador
 
-Responsavel pela contagem fisica dos produtos.
+Responsável pela contagem física dos produtos.
 
-Permissoes principais:
+Permissões principais:
 
-- Acessar contagens abertas
-- Localizar produtos por nome, SKU ou codigo de barras
-- Informar quantidade fisica encontrada
-- Enviar itens contados para a API
+- Acessar contagens disponíveis
+- Visualizar itens da contagem
+- Buscar itens por nome, SKU ou código de barras no app Android
+- Informar quantidade física encontrada
+- Salvar quantidades localmente no app
+- Sincronizar itens contados com a API
 
-## 4. Modulos do Sistema Web
+## 4. Módulos do Sistema Web
 
-### Autenticacao
+### Autenticação
 
-Controla o acesso dos usuarios ao sistema.
-
-Requisitos:
-
-- Login com email e senha
-- Usuario autenticado em todas as telas internas
-- Registro do usuario responsavel por movimentacoes e contagens
-- Separacao de permissoes por perfil
+- Login com e-mail e senha
+- Logout
+- Rotas internas protegidas
+- Mensagens de erro em português
+- Estado de carregamento no botão de entrada
 
 ### Dashboard
-
-Tela inicial apos o login.
-
-Indicadores previstos:
 
 - Total de produtos
 - Total de categorias
 - Total de fornecedores
-- Ultimas movimentacoes
+- Movimentações recentes
 - Contagens abertas ou em andamento
-- Produtos com divergencia em contagens recentes
+- Divergências
+- Indicadores e gráficos
 
 ### Produtos
-
-Cadastro e manutencao dos produtos do estoque.
 
 Campos principais:
 
 - Nome
-- Descricao
+- Descrição
 - SKU
-- Codigo de barras
+- Código de barras
 - Unidade de medida
-- Preco de custo
-- Preco de venda
+- Preço de custo
+- Preço de venda
 - Quantidade atual
 - Categoria
 - Fornecedor
@@ -104,181 +103,139 @@ Campos principais:
 Regras:
 
 - Cada produto pertence a uma empresa.
-- Cada produto pode estar vinculado a uma categoria.
-- Cada produto pode estar vinculado a um fornecedor.
-- SKU e codigo de barras devem ser usados para localizar produtos.
-- A quantidade atual deve ser alterada por movimentacoes ou ajustes aprovados, nao diretamente sem controle.
+- SKU não pode se repetir dentro da mesma empresa.
+- Código de barras não pode se repetir dentro da mesma empresa.
+- A quantidade atual é alterada por movimentações ou ajustes aprovados.
+- Produtos com movimentações ou contagens vinculadas não podem ser excluídos.
 
 ### Categorias
 
-Organizam os produtos em grupos.
-
-Campos principais:
-
-- Nome
-- Descricao
-- Empresa
-
-Regras:
-
-- Uma categoria pertence a uma empresa.
-- Uma categoria pode possuir varios produtos.
+- Listagem
+- Cadastro
+- Edição
+- Exclusão
+- Bloqueio de exclusão quando houver produtos vinculados
 
 ### Fornecedores
 
-Armazenam os fornecedores relacionados aos produtos.
+- Listagem
+- Cadastro
+- Edição
+- Exclusão
+- Bloqueio de exclusão quando houver produtos vinculados
 
-Campos principais:
+### Movimentações de Estoque
 
-- Nome
-- CNPJ
-- Telefone
-- Email
-- Endereco
-- Empresa
+- Registro de entradas
+- Registro de saídas
+- Registro de ajustes
+- Histórico com filtros
+- Bloqueio de saída maior que o saldo disponível
+- Atualização controlada da quantidade atual do produto
 
-Regras:
+### Contagens de Estoque
 
-- Um fornecedor pertence a uma empresa.
-- Um fornecedor pode possuir varios produtos.
+- Criação de contagens
+- Seleção manual de produtos
+- Seleção de todos os produtos
+- Controle de status: aberta, em andamento, finalizada e aprovada
+- Atualização de itens pela web
+- Atualização de itens pela API mobile
+- Finalização apenas quando os itens necessários estiverem contados
 
-### Movimentacoes de Estoque
+### Divergências
 
-Registram entradas, saidas e ajustes.
+- Listagem de faltas físicas
+- Listagem de sobras físicas
+- Itens sem divergência
+- Filtros por tipo de divergência
+- Aprovação de ajustes pelo administrador
 
-Campos principais:
+### Relatórios
 
-- Produto
-- Usuario responsavel
-- Tipo: entrada, saida ou ajuste
-- Quantidade
-- Motivo
-- Data da movimentacao
+- Exportação de estoque em CSV
+- Exportação de movimentações em CSV
+- Exportação de divergências em CSV
+- Filtros por produto, tipo, usuário, período e tipo de divergência
 
-Regras:
+### Auditoria
 
-- Entrada aumenta a quantidade atual do produto.
-- Saida diminui a quantidade atual do produto.
-- Ajuste altera o estoque apos aprovacao de divergencia.
-- Toda movimentacao deve ficar registrada no historico.
-- Nao permitir saida maior que o saldo disponivel, salvo regra explicita futura.
+- Registro de ações importantes
+- Listagem de logs
+- Filtros por módulo, ação, usuário e período
+- Acesso restrito ao administrador
 
-### Historico de Movimentacoes
+## 5. Componentes Globais de Interface
 
-Lista todas as movimentacoes realizadas.
+- Toast global com ícone, progress bar e tipos de sucesso, erro, informação e alerta
+- Modal global de confirmação para exclusões e ações críticas
+- Dropdown customizado
+- Paginação padronizada
+- Loader superior
+- Skeletons reais por bloco
+- Loader de tela inteira para ações demoradas
+- Sidebar e header fixos
+- Menu mobile para telas menores
 
-Filtros uteis:
+## 6. Arquitetura Laravel
 
-- Produto
-- Tipo de movimentacao
-- Usuario
-- Periodo
-
-### Contagem de Estoque
-
-Permite criar processos de conferencia fisica do estoque.
-
-Campos principais da contagem:
-
-- Titulo
-- Empresa
-- Status: aberta, em andamento, finalizada ou aprovada
-- Usuario criador
-- Data de criacao
-- Data de finalizacao
-
-Campos principais dos itens da contagem:
-
-- Contagem
-- Produto
-- Quantidade registrada no sistema
-- Quantidade fisica contada
-- Diferenca
-- Status de sincronizacao
-
-Regras:
-
-- O administrador cria uma contagem.
-- A contagem inicia como aberta.
-- O contador acessa a contagem pelo mobile.
-- O contador informa as quantidades fisicas.
-- O sistema compara quantidade registrada e quantidade contada.
-- Divergencias devem ser analisadas antes de qualquer ajuste no estoque.
-- O estoque so deve ser atualizado apos aprovacao do administrador.
-
-### Divergencias
-
-Mostram diferencas entre estoque registrado e estoque contado.
-
-Calculo:
-
-```text
-diferenca = quantidade_contada - quantidade_sistema
-```
-
-Regras:
-
-- Se a diferenca for zero, nao ha divergencia.
-- Se a diferenca for positiva, existe sobra fisica.
-- Se a diferenca for negativa, existe falta fisica.
-- O administrador decide se aprova o ajuste.
-
-## 5. Arquitetura Laravel
-
-O projeto deve seguir MVC com camadas auxiliares.
+O projeto segue MVC com camadas auxiliares.
 
 Fluxo principal:
 
 ```text
-View Blade
+Route
 Controller
+Form Request
+DTO
 Service
 Repository
 Model
 Banco MySQL
+Blade ou JSON
 ```
 
 Responsabilidades:
 
-- Controller: recebe requisicoes, valida entrada inicial e chama services.
-- Service: concentra regras de negocio.
-- Repository: isola consultas e persistencia.
+- Route: define URL, middleware e permissão.
+- Controller: recebe requisições e orquestra o fluxo.
+- Form Request: valida dados de entrada.
+- DTO: transporta dados validados entre camadas.
+- Service: concentra regras de negócio.
+- Repository: isola consultas e persistência.
 - Model: representa entidades e relacionamentos.
-- DTO: transporta dados estruturados entre camadas quando fizer sentido.
-- Observer: executa acoes automaticas em eventos importantes, como finalizacao de contagem.
+- View/API Response: entrega interface Blade ou JSON padronizado.
 
-## 6. Estrutura Sugerida do Banco
+## 7. Estrutura do Banco
 
 Tabelas principais:
 
-- companies
-- users
-- categories
-- suppliers
-- products
-- stock_movements
-- inventory_counts
-- inventory_count_items
+- `companies`
+- `users`
+- `categories`
+- `suppliers`
+- `products`
+- `stock_movements`
+- `inventory_counts`
+- `inventory_count_items`
+- `audit_logs`
+- `personal_access_tokens`
 
-Relacionamentos:
+Relacionamentos principais:
 
-- Uma empresa possui varios usuarios.
-- Uma empresa possui varias categorias.
-- Uma empresa possui varios fornecedores.
-- Uma empresa possui varios produtos.
-- Uma categoria possui varios produtos.
-- Um fornecedor possui varios produtos.
-- Um produto possui varias movimentacoes.
-- Um usuario registra varias movimentacoes.
-- Uma empresa possui varias contagens.
-- Uma contagem possui varios itens.
-- Um produto pode aparecer em varios itens de contagem.
+- Uma empresa possui usuários, categorias, fornecedores, produtos, movimentações, contagens e logs.
+- Uma categoria possui vários produtos.
+- Um fornecedor possui vários produtos.
+- Um produto possui várias movimentações.
+- Um produto pode aparecer em vários itens de contagem.
+- Uma contagem possui vários itens.
+- Uma movimentação pode estar vinculada a uma contagem quando for ajuste aprovado.
 
-## 7. API REST
+## 8. API REST
 
-A API sera usada pelo aplicativo mobile.
+A API é usada pelo aplicativo Android e por integrações externas de consulta.
 
-Rotas esperadas:
+Rotas implementadas:
 
 ```text
 POST   /api/login
@@ -286,51 +243,53 @@ POST   /api/logout
 GET    /api/me
 
 GET    /api/products
-GET    /api/products/{id}
+GET    /api/products/{product}
 GET    /api/products/search
 
+GET    /api/mobile/summary
 GET    /api/inventory-counts
-GET    /api/inventory-counts/{id}
-GET    /api/inventory-counts/{id}/items
-POST   /api/inventory-counts/{id}/items
-POST   /api/inventory-counts/{id}/sync
+GET    /api/inventory-counts/{inventoryCount}
+GET    /api/inventory-counts/{inventoryCount}/items
+POST   /api/inventory-counts/{inventoryCount}/items
+POST   /api/inventory-counts/{inventoryCount}/sync
 ```
 
-Padrao de resposta:
+Padrão de resposta:
 
 ```json
 {
   "success": true,
   "data": {},
-  "message": "Operacao realizada com sucesso"
+  "message": "Operação realizada com sucesso"
 }
 ```
 
-Padrao de erro:
+Padrão de erro:
 
 ```json
 {
   "success": false,
-  "message": "Erro de validacao",
+  "message": "Erro de validação",
   "errors": {}
 }
 ```
 
-## 8. Aplicativo Mobile
+## 9. Aplicativo Android
 
-Objetivo principal: registrar contagens fisicas de estoque.
+Objetivo principal: registrar contagens físicas de estoque.
 
 Fluxo:
 
-1. Usuario faz login no aplicativo.
-2. Aplicativo consulta contagens abertas na API.
-3. Usuario seleciona uma contagem.
-4. Aplicativo lista produtos da contagem.
-5. Usuario localiza produto por nome, SKU ou codigo de barras.
-6. Usuario informa quantidade fisica encontrada.
-7. Aplicativo salva localmente com Room Database.
-8. Aplicativo envia dados para a API.
-9. Sistema web processa divergencias.
+1. Usuário faz login no aplicativo.
+2. Aplicativo salva o token de acesso.
+3. Aplicativo consulta resumo e contagens disponíveis na API.
+4. Usuário seleciona uma contagem.
+5. Aplicativo lista os itens da contagem.
+6. Usuário busca item por nome, SKU ou código de barras.
+7. Usuário informa quantidade física encontrada.
+8. Aplicativo salva a quantidade localmente com Room Database.
+9. Aplicativo sincroniza os itens com a API REST.
+10. Sistema web processa diferenças e permite aprovação de ajustes.
 
 Arquitetura mobile:
 
@@ -340,78 +299,75 @@ ViewModel
 Repository
 DAO
 Room Database
+Retrofit
+API REST
 ```
 
-## 9. Design Patterns
+## 10. Design Patterns
 
 ### Repository Pattern
 
-Usado para separar regras de acesso a dados da logica de negocio.
+Usado para separar acesso a dados da regra de negócio.
 
-Exemplos:
+Classes:
 
-- ProductRepository
-- CategoryRepository
-- SupplierRepository
-- StockMovementRepository
-- InventoryCountRepository
+- `ProductRepository`
+- `StockMovementRepository`
+- `InventoryCountRepository`
 
 ### Service Layer
 
-Usado para concentrar regras de negocio.
+Usado para concentrar regras de negócio.
 
-Exemplos:
+Classes:
 
-- ProductService
-- StockMovementService
-- InventoryCountService
-- DivergenceService
+- `StockMovementService`
+- `InventoryCountService`
+- `AuditLogService`
 
 ### DTO
 
-Usado para transportar dados entre camadas quando o array ou request direto ficaria confuso.
+Usado para transportar dados validados entre camadas.
 
-Exemplos:
+Classes:
 
-- ProductData
-- StockMovementData
-- InventoryCountItemData
+- `ProductData`
+- `StockMovementData`
+- `InventoryCountData`
 
-### Observer
+### Dependency Injection
 
-Usado para reagir a eventos do sistema.
+Usado pelo container do Laravel para injetar services e repositories em controllers e outros services.
 
-Exemplo:
+### Facade
 
-- Ao finalizar uma contagem, gerar divergencias automaticamente.
+Usado principalmente com `DB::transaction()` para garantir consistência em operações críticas.
 
-## 10. Checklist Inicial de Implementacao
+## 11. Verificações
 
-1. Criar projeto Laravel.
-2. Configurar banco MySQL.
-3. Criar autenticacao.
-4. Criar migrations principais.
-5. Criar models e relacionamentos.
-6. Criar seeders basicos.
-7. Implementar produtos.
-8. Implementar categorias.
-9. Implementar fornecedores.
-10. Implementar movimentacoes.
-11. Implementar dashboard.
-12. Implementar contagens.
-13. Implementar divergencias.
-14. Implementar aprovacao de ajustes.
-15. Criar API REST para o mobile.
-16. Criar aplicativo Android em Kotlin.
-17. Integrar mobile com API.
-18. Inserir prints finais na documentacao academica.
+Comandos principais:
 
-## 11. Fora do Escopo Inicial
+```powershell
+cd backend
+php artisan test
+npm run build
+composer audit
+npm audit --audit-level=critical
+git diff --check
+```
 
-Funcionalidades que nao precisam ser implementadas na primeira versao:
+```powershell
+cd mobile
+.\gradlew.bat assembleDebug
+```
 
-- Alerta de estoque minimo
-- Emissao de notas fiscais
-- Integracao com sistemas externos de venda
+## 12. Próximas Evoluções Possíveis
+
+Funcionalidades fora da primeira versão:
+
+- Alerta de estoque mínimo
+- Leitura de código de barras por câmera
+- Emissão de notas fiscais
+- Integração com sistemas externos de venda
 - Controle financeiro completo
-- Gestao de compras
+- Gestão de compras

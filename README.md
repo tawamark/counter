@@ -14,12 +14,12 @@
 
 Counter é um sistema web e mobile para controle, movimentação e contagem de estoque.
 
-O projeto foi desenvolvido como uma solução para administrar produtos, categorias, fornecedores, movimentações, contagens, divergências, relatórios, auditoria e sincronização com aplicativo mobile.
+A primeira versão do sistema está finalizada com interface web, API REST, banco de dados MySQL, arquitetura em camadas, Design Patterns documentados, dados de demonstração e aplicativo Android nativo integrado à API.
 
 ## Módulos Implementados
 
 - Autenticação web
-- Dashboard
+- Dashboard com indicadores e gráficos
 - Perfis de usuário
 - Produtos
 - Categorias
@@ -32,6 +32,7 @@ O projeto foi desenvolvido como uma solução para administrar produtos, categor
 - Aprovação de ajustes
 - Relatórios em CSV
 - Auditoria de ações
+- Toast, modal de confirmação, paginação e loaders globais
 - API REST para aplicativo mobile
 - Aplicativo Android nativo
 - Dados de demonstração
@@ -43,7 +44,7 @@ O projeto foi desenvolvido como uma solução para administrar produtos, categor
 | Back-end | PHP 8.2+, Laravel 12, Laravel Sanctum |
 | Banco de dados | MySQL |
 | Front-end web | Blade, Tailwind CSS, Alpine.js, Lucide Icons, Vite |
-| Mobile | Android nativo, Kotlin, Room Database, Retrofit |
+| Mobile | Android nativo, Kotlin, XML, Room Database, Retrofit, OkHttp |
 | Qualidade | PHPUnit, Gradle, Git |
 
 ## Estrutura
@@ -51,14 +52,19 @@ O projeto foi desenvolvido como uma solução para administrar produtos, categor
 ```text
 backend/   Aplicação Laravel, interface web e API REST
 mobile/    Aplicativo Android nativo em Kotlin
-docs/      Documentação técnica e ordem de desenvolvimento
+docs/      Documentação técnica do projeto
 ```
 
 ## Documentação
 
 - [README do backend](backend/README.md)
+- [Documento técnico](docs/documento-tecnico.md)
 - [Guia de desenvolvimento](docs/guia-desenvolvimento.md)
+- [Design Patterns](docs/design-patterns.md)
+- [API mobile](docs/api-mobile.md)
+- [Aplicativo mobile](docs/mobile.md)
 - [Ordem de desenvolvimento](docs/ordem-desenvolvimento.md)
+- [Checklist de entrega](docs/checklist-entrega.md)
 
 ## Usuários de Demonstração
 
@@ -66,9 +72,9 @@ Todos usam a senha `password`.
 
 | Perfil | E-mail | Acesso principal |
 | --- | --- | --- |
-| Administrador | `admin@counter.test` | Cadastros, contagens, divergências, relatórios e aprovação de ajustes |
+| Administrador | `admin@counter.test` | Cadastros, contagens, divergências, relatórios, auditoria e aprovação de ajustes |
 | Estoquista | `estoquista@counter.test` | Produtos e movimentações de estoque |
-| Contador | `contador@counter.test` | Contagens e sincronização de itens contados |
+| Contador | `contador@counter.test` | Contagens web e sincronização de itens pelo mobile |
 
 ## Como Rodar
 
@@ -102,7 +108,7 @@ php artisan db:seed
 Suba a aplicação web:
 
 ```powershell
-php artisan serve
+php artisan serve --host=0.0.0.0 --port=8000
 npm run dev
 ```
 
