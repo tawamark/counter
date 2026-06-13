@@ -1,6 +1,10 @@
 # Ordem de Desenvolvimento do Counter
 
+Este arquivo registra a ordem seguida na construção do projeto e o estado atual de cada etapa. O sistema web, a API REST e o aplicativo Android já foram implementados.
+
 ## 1. Base do banco
+
+Status: concluído.
 
 - Criar migrations principais.
 - Criar tabela `companies`.
@@ -11,73 +15,125 @@
 - Criar tabela `stock_movements`.
 - Criar tabela `inventory_counts`.
 - Criar tabela `inventory_count_items`.
+- Criar tabela `audit_logs`.
+- Criar tabela `personal_access_tokens`.
+- Aplicar índice único de SKU por empresa.
+- Aplicar índice único de código de barras por empresa.
 
 ## 2. Models e relacionamentos
+
+Status: concluído.
 
 - Definir relações entre empresa e usuários.
 - Definir relações entre empresa, produtos, categorias e fornecedores.
 - Definir relações entre produtos e movimentações.
 - Definir relações entre contagens e itens contados.
+- Definir relações necessárias para auditoria e sincronização mobile.
 
 ## 3. Autenticação web
+
+Status: concluído.
 
 - Implementar login.
 - Implementar logout.
 - Proteger rotas internas.
 - Identificar usuário autenticado nas operações.
+- Padronizar mensagens de erro em português.
+- Adicionar estado de carregamento no botão de entrada.
 
 ## 4. Perfis de usuário
 
+Status: concluído.
+
 - Criar perfis `admin`, `stockist` e `counter`.
-- Aplicar regras básicas de acesso.
+- Aplicar regras de acesso por perfil.
 - Restringir funcionalidades conforme perfil.
+- Impedir exclusão do próprio usuário autenticado.
+- Impedir alteração do próprio perfil de acesso.
 
 ## 5. Layout base web
 
-- Criar layout interno padrão.
-- Criar sidebar ou menu principal.
-- Criar topbar.
-- Configurar componentes visuais com Tailwind CSS, Alpine.js e Lucide Icons.
+Status: concluído.
 
-## 6. Dashboard
+- Criar layout interno padrão.
+- Criar sidebar fixa.
+- Criar header fixo.
+- Criar menu mobile.
+- Configurar componentes visuais com Tailwind CSS, Alpine.js e Lucide Icons.
+- Aplicar paleta do projeto: `#FC6F20`, `#ffffff` e `#323232`.
+- Aplicar logo do projeto.
+
+## 6. Componentes globais de interface
+
+Status: concluído.
+
+- Criar toast global com ícones, progress bar e cores por tipo.
+- Criar modal global de confirmação.
+- Padronizar dropdowns customizados.
+- Padronizar paginação.
+- Criar loader global.
+- Criar skeletons reais para blocos.
+- Criar loader de tela inteira para ações demoradas.
+
+## 7. Dashboard
+
+Status: concluído.
 
 - Exibir total de produtos.
 - Exibir total de categorias.
 - Exibir total de fornecedores.
-- Exibir últimas movimentações.
+- Exibir movimentações recentes.
 - Exibir contagens abertas ou em andamento.
+- Exibir divergências.
+- Exibir gráficos e indicadores visuais.
 
-## 7. Categorias
+## 8. Categorias
+
+Status: concluído.
 
 - Listar categorias.
 - Cadastrar categorias.
 - Editar categorias.
 - Excluir categorias.
+- Impedir exclusão quando houver produtos vinculados.
 
-## 8. Fornecedores
+## 9. Fornecedores
+
+Status: concluído.
 
 - Listar fornecedores.
 - Cadastrar fornecedores.
 - Editar fornecedores.
 - Excluir fornecedores.
+- Impedir exclusão quando houver produtos vinculados.
 
-## 9. Produtos
+## 10. Produtos
+
+Status: concluído.
 
 - Listar produtos.
 - Cadastrar produtos.
 - Editar produtos.
 - Excluir produtos.
 - Controlar nome, SKU, código de barras, categoria, fornecedor, preços e quantidade atual.
+- Impedir SKU duplicado por empresa.
+- Impedir código de barras duplicado por empresa.
+- Impedir exclusão quando houver movimentações ou contagens vinculadas.
 
-## 10. Movimentações de estoque
+## 11. Movimentações de estoque
+
+Status: concluído.
 
 - Registrar entradas.
 - Registrar saídas.
 - Registrar ajustes.
 - Atualizar quantidade do produto de forma controlada.
 - Impedir saídas inválidas quando não houver saldo suficiente.
+- Registrar histórico da movimentação.
 
-## 11. Histórico de movimentações
+## 12. Histórico de movimentações
+
+Status: concluído.
 
 - Listar movimentações.
 - Filtrar por produto.
@@ -85,76 +141,147 @@
 - Filtrar por usuário.
 - Filtrar por período.
 
-## 12. Contagem de estoque
+## 13. Contagem de estoque
+
+Status: concluído.
 
 - Criar contagens.
-- Selecionar produtos da contagem.
+- Selecionar todos os produtos.
+- Selecionar produtos específicos.
 - Controlar status da contagem.
 - Permitir status aberta, em andamento, finalizada e aprovada.
+- Finalizar contagem somente quando os itens necessários estiverem contados.
 
-## 13. Itens da contagem
+## 14. Itens da contagem
+
+Status: concluído.
 
 - Registrar quantidade do sistema.
 - Registrar quantidade contada.
 - Calcular diferença entre quantidade contada e quantidade registrada.
+- Permitir limpeza da quantidade contada.
+- Atualizar itens pela interface web.
+- Atualizar itens pela API mobile.
 
-## 14. Divergências
+## 15. Divergências
+
+Status: concluído.
 
 - Listar produtos com diferença.
 - Mostrar sobra física.
 - Mostrar falta física.
 - Separar itens sem divergência dos itens divergentes.
+- Filtrar divergências por tipo.
 
-## 15. Aprovação de ajustes
+## 16. Aprovação de ajustes
+
+Status: concluído.
 
 - Permitir que o administrador aprove ajustes.
 - Gerar movimentação de ajuste.
 - Atualizar quantidade atual do produto.
 - Manter rastreabilidade da aprovação.
 
-## 16. API REST
+## 17. Relatórios
+
+Status: concluído.
+
+- Criar tela de relatórios.
+- Exportar estoque em CSV.
+- Exportar movimentações em CSV.
+- Exportar divergências em CSV.
+- Aplicar filtros nos relatórios.
+- Organizar a tela de relatórios em blocos por linha.
+
+## 18. Auditoria
+
+Status: concluído.
+
+- Registrar ações importantes.
+- Listar logs de auditoria.
+- Filtrar logs por módulo, ação, usuário e período.
+- Restringir auditoria ao perfil administrador.
+
+## 19. API REST
+
+Status: concluído.
 
 - Criar login para o aplicativo mobile.
+- Criar logout por token.
+- Criar rota de usuário autenticado.
 - Criar rota para listar produtos.
-- Criar rota para listar contagens abertas.
+- Criar rota de busca de produtos.
+- Criar rota de resumo mobile.
+- Criar rota para listar contagens.
 - Criar rota para listar itens de contagem.
 - Criar rota para enviar itens contados.
 - Criar rota para sincronização.
+- Padronizar respostas JSON de sucesso e erro.
+- Proteger rotas por autenticação e perfil.
 
-## 17. Seeders
+## 20. Seeders
+
+Status: concluído.
 
 - Criar empresa padrão.
-- Criar usuário administrador.
+- Criar usuários de demonstração.
 - Criar categorias de exemplo.
 - Criar fornecedores de exemplo.
 - Criar produtos de exemplo.
+- Criar movimentações de exemplo.
+- Criar contagens e divergências de exemplo.
+- Criar dados suficientes para demonstração acadêmica.
 
-## 18. Refino visual
+## 21. Aplicativo Android
 
-- Melhorar telas principais.
-- Ajustar responsividade.
-- Revisar textos em português.
-- Criar estados vazios.
-- Criar mensagens de erro e sucesso.
+Status: concluído.
 
-## 19. Testes
-
-- Criar testes de models.
-- Criar testes de services.
-- Criar testes de rotas principais.
-- Criar testes das regras de movimentação de estoque.
-- Criar testes das regras de contagem e divergência.
-
-## 20. Aplicativo mobile
-
-- Iniciar após a API estar estável.
+- Criar projeto Android nativo em Kotlin.
 - Implementar login.
-- Listar contagens abertas.
-- Listar produtos da contagem.
+- Integrar login com API REST.
+- Listar resumo mobile.
+- Listar contagens disponíveis.
+- Exibir status das contagens com indicador visual.
+- Listar itens da contagem.
+- Buscar itens por nome, SKU ou código de barras.
 - Registrar quantidades contadas.
 - Salvar dados locais com Room Database.
 - Sincronizar dados com a API REST.
+- Exibir toasts centralizados.
+- Exibir loaders e estados vazios.
+- Criar navegação inferior.
+- Melhorar usabilidade no emulador Android.
+
+## 22. Testes e validações
+
+Status: concluído.
+
+- Criar testes de DTOs.
+- Criar testes de autenticação.
+- Criar testes de perfis de acesso.
+- Criar testes de produtos, categorias e fornecedores.
+- Criar testes de movimentações.
+- Criar testes de contagens e divergências.
+- Criar testes de relatórios.
+- Criar testes de auditoria.
+- Criar testes da API REST.
+- Criar testes dos componentes globais de toast e confirmação.
+- Compilar aplicativo Android com Gradle.
+
+## 23. Documentação e entrega
+
+Status: em revisão final.
+
+- Atualizar README principal.
+- Atualizar README do backend.
+- Manter `AGENTS.md` fora do Git.
+- Manter documentação acadêmica original fora do Git.
+- Revisar documento técnico final.
+- Conferir prints da aplicação web.
+- Conferir prints do aplicativo Android.
+- Garantir que os Design Patterns estejam explicados com nomes reais das classes.
+- Garantir que a API documentada bata com as rotas reais.
 
 ## Próximo passo recomendado
 
-Começar pela base do banco e pelos models, porque essas partes definem a estrutura central do sistema.
+O desenvolvimento funcional está concluído. O próximo passo é revisar o documento técnico final, atualizar os prints e preparar a apresentação de 5 a 10 minutos com foco em funcionamento, arquitetura, Design Patterns, API, banco de dados e aplicativo Android.
