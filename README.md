@@ -78,6 +78,14 @@ Todos usam a senha `password`.
 
 ## Como Rodar
 
+Para apresentação, execute na raiz do projeto:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\start-counter.ps1
+```
+
+Esse comando inicia MySQL, Laravel e Vite, aplica migrations pendentes e abre a aplicação web.
+
 Entre na pasta do backend:
 
 ```powershell
