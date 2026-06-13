@@ -1,3 +1,7 @@
+@php
+    $isEditingAuthenticatedUser = $user?->id === auth()->id();
+@endphp
+
 <form method="POST" action="{{ $action }}" class="max-w-2xl rounded-lg border border-[#e5e0dc] bg-counter-bg p-6 shadow-sm">
     @csrf
     @if ($method !== 'POST')
@@ -22,7 +26,14 @@
         </div>
 
         <div>
-            <x-dropdown-select name="role" label="Perfil" :selected="old('role', $user?->role ?? 'admin')" :options="['admin' => 'Administrador', 'stockist' => 'Estoquista', 'counter' => 'Contador']" />
+            @if ($isEditingAuthenticatedUser)
+                <label for="role_display" class="mb-1 block text-sm font-medium">Perfil</label>
+                <input id="role_display" type="text" value="{{ ['admin' => 'Administrador', 'stockist' => 'Estoquista', 'counter' => 'Contador'][$user->role] ?? $user->role }}" disabled class="block w-full rounded-md border border-[#d8d2cc] bg-[#f7f5f3] px-3 py-2 text-sm text-[#6f6f6f] outline-none">
+                <input type="hidden" name="role" value="{{ $user->role }}">
+                <p class="mt-1 text-xs text-[#6f6f6f]">O próprio perfil de acesso não pode ser alterado.</p>
+            @else
+                <x-dropdown-select name="role" label="Perfil" :selected="old('role', $user?->role ?? 'admin')" :options="['admin' => 'Administrador', 'stockist' => 'Estoquista', 'counter' => 'Contador']" />
+            @endif
             @error('role')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror

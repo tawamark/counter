@@ -81,6 +81,25 @@ class UserManagementTest extends TestCase
         ]);
     }
 
+    public function test_admin_cannot_change_own_role(): void
+    {
+        $admin = $this->createUser('admin', 'admin@counter.test');
+
+        $this->actingAs($admin)
+            ->put("/users/{$admin->id}", [
+                'name' => 'Administrador',
+                'email' => 'admin@counter.test',
+                'role' => 'stockist',
+                'password' => null,
+            ])
+            ->assertRedirect('/users');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $admin->id,
+            'role' => 'admin',
+        ]);
+    }
+
     public function test_user_management_is_restricted_to_admin(): void
     {
         $stockist = $this->createUser('stockist', 'estoquista@counter.test');

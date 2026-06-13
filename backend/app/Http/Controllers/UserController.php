@@ -56,7 +56,15 @@ class UserController extends Controller
     {
         $this->authorizeUser($user);
 
-        $user->update($request->validatedData());
+        $data = $request->validatedData();
+
+        if ($user->id === auth()->id() && $data['role'] !== $user->role) {
+            return redirect()
+                ->route('users.index')
+                ->with('error', 'Não é possível alterar o próprio perfil de acesso.');
+        }
+
+        $user->update($data);
 
         $auditLogService->record(auth()->user(), 'usuarios', 'atualizou', 'Usuário atualizado: '.$user->name, $user, [
             'email' => $user->email,
