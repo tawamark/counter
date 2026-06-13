@@ -1,6 +1,8 @@
 package br.com.counter.mobile
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -30,6 +32,16 @@ class CountItemsActivity : AppCompatActivity() {
         binding.viewStatusDot.background = ContextCompat.getDrawable(this, statusDot(countStatus))
         binding.recyclerItems.layoutManager = LinearLayoutManager(this)
         binding.recyclerItems.adapter = adapter
+        binding.editSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                adapter.filter(s?.toString().orEmpty())
+                updateEmptyState(viewModel.items.value.orEmpty().isEmpty())
+            }
+
+            override fun afterTextChanged(s: Editable?) = Unit
+        })
 
         binding.buttonBack.setOnClickListener {
             finish()
@@ -50,7 +62,7 @@ class CountItemsActivity : AppCompatActivity() {
     private fun observe() {
         viewModel.items.observe(this) {
             adapter.update(it)
-            binding.layoutEmptyItems.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
+            updateEmptyState(it.isEmpty())
         }
 
         viewModel.message.observe(this) {
@@ -72,6 +84,18 @@ class CountItemsActivity : AppCompatActivity() {
 
         viewModel.savingItemId.observe(this) {
             adapter.updateSavingItem(it)
+        }
+    }
+
+    private fun updateEmptyState(hasNoItems: Boolean) {
+        val hasSearch = binding.editSearch.text.toString().isNotBlank()
+        val showEmpty = hasNoItems || adapter.visibleCount() == 0
+
+        binding.layoutEmptyItems.visibility = if (showEmpty) View.VISIBLE else View.GONE
+        binding.textEmptyItems.text = if (hasSearch && !hasNoItems) {
+            "Nenhum item encontrado para a busca informada."
+        } else {
+            "Atualize ou volte para escolher outra contagem."
         }
     }
 

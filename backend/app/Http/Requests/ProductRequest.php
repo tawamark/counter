@@ -28,7 +28,12 @@ class ProductRequest extends FormRequest
                 'max:255',
                 Rule::unique('products')->where('company_id', $companyId)->ignore($product),
             ],
-            'barcode' => ['nullable', 'string', 'max:255'],
+            'barcode' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::unique('products')->where('company_id', $companyId)->ignore($product),
+            ],
             'unit' => ['required', 'string', 'max:20'],
             'cost_price' => ['required', 'numeric', 'min:0', 'max:99999999.99'],
             'sale_price' => ['required', 'numeric', 'min:0', 'max:99999999.99'],

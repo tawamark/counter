@@ -70,6 +70,20 @@
             android:textColor="@android:color/white" />
     </LinearLayout>
 
+    <EditText
+        android:id="@+id/edit_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/bg_input"
+        android:hint="Buscar por nome, SKU ou código de barras"
+        android:inputType="text"
+        android:singleLine="true"
+        android:textColor="@color/counter_text"
+        android:textColorHint="@color/counter_muted" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -126,6 +140,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/text_empty_items"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"

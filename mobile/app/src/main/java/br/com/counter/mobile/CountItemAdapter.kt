@@ -9,8 +9,10 @@ import br.com.counter.mobile.databinding.RowCountItemBinding
 class CountItemAdapter(
     private val onSave: (CountItemEntity, String) -> Unit
 ) : RecyclerView.Adapter<CountItemAdapter.ViewHolder>() {
+    private val allItems = mutableListOf<CountItemEntity>()
     private val items = mutableListOf<CountItemEntity>()
     private var savingItemId: Int? = null
+    private var searchTerm = ""
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = RowCountItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -26,13 +28,39 @@ class CountItemAdapter(
     }
 
     fun update(newItems: List<CountItemEntity>) {
-        items.clear()
-        items.addAll(newItems)
-        notifyDataSetChanged()
+        allItems.clear()
+        allItems.addAll(newItems)
+        applyFilter()
+    }
+
+    fun filter(term: String) {
+        searchTerm = term.trim()
+        applyFilter()
+    }
+
+    fun visibleCount(): Int {
+        return items.size
     }
 
     fun updateSavingItem(itemId: Int?) {
         savingItemId = itemId
+        notifyDataSetChanged()
+    }
+
+    private fun applyFilter() {
+        val normalizedTerm = searchTerm.lowercase()
+        val filteredItems = if (normalizedTerm.isBlank()) {
+            allItems
+        } else {
+            allItems.filter {
+                it.productName.lowercase().contains(normalizedTerm) ||
+                    it.sku.orEmpty().lowercase().contains(normalizedTerm) ||
+                    it.barcode.orEmpty().lowercase().contains(normalizedTerm)
+            }
+        }
+
+        items.clear()
+        items.addAll(filteredItems)
         notifyDataSetChanged()
     }
 
@@ -56,7 +84,8 @@ class CountItemAdapter(
         private fun details(item: CountItemEntity): String {
             val sku = item.sku ?: "SKU não informado"
             val unit = item.unit ?: "un"
-            return "$sku • Sistema: ${item.systemQuantity} $unit"
+            val barcode = item.barcode?.takeIf { it.isNotBlank() }?.let { " • Código: $it" } ?: ""
+            return "$sku$barcode • Sistema: ${item.systemQuantity} $unit"
         }
 
         private fun syncStatusLabel(item: CountItemEntity): String {

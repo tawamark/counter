@@ -144,6 +144,33 @@ class ProductTest extends TestCase
             ->assertNotFound();
     }
 
+    public function test_user_cannot_repeat_barcode_in_same_company(): void
+    {
+        $user = $this->createUser();
+
+        Product::create([
+            'company_id' => $user->company_id,
+            'name' => 'Notebook',
+            'sku' => 'NOTE-001',
+            'barcode' => '789000000001',
+        ]);
+
+        $this->actingAs($user)
+            ->post('/products', [
+                'category_id' => null,
+                'supplier_id' => null,
+                'name' => 'Mouse',
+                'description' => null,
+                'sku' => 'MOU-001',
+                'barcode' => '789000000001',
+                'unit' => 'un',
+                'cost_price' => 45,
+                'sale_price' => 79.9,
+                'current_quantity' => 10,
+            ])
+            ->assertSessionHasErrors('barcode');
+    }
+
     private function createUser(string $companyName = 'Counter Demo', string $email = 'admin@counter.test'): User
     {
         $company = Company::create([
