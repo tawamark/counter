@@ -1,8 +1,20 @@
 # Counter
 
+<p align="center">
+  <img src="backend/public/images/logo.svg" alt="Counter" width="220">
+</p>
+
+<p align="center">
+  <img alt="Laravel" src="https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel&logoColor=white">
+  <img alt="PHP" src="https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white">
+  <img alt="MySQL" src="https://img.shields.io/badge/MySQL-Database-4479A1?logo=mysql&logoColor=white">
+  <img alt="Android" src="https://img.shields.io/badge/Android-Kotlin-3DDC84?logo=android&logoColor=white">
+  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss&logoColor=white">
+</p>
+
 Counter é um sistema web e mobile para controle, movimentação e contagem de estoque.
 
-O projeto está em desenvolvimento como uma solução para administrar produtos, categorias, fornecedores, movimentações, contagens, divergências e sincronização com aplicativo mobile.
+O projeto foi desenvolvido como uma solução para administrar produtos, categorias, fornecedores, movimentações, contagens, divergências, relatórios, auditoria e sincronização com aplicativo mobile.
 
 ## Módulos Implementados
 
@@ -18,25 +30,27 @@ O projeto está em desenvolvimento como uma solução para administrar produtos,
 - Itens de contagem
 - Divergências
 - Aprovação de ajustes
+- Relatórios em CSV
+- Auditoria de ações
 - API REST para aplicativo mobile
+- Aplicativo Android nativo
 - Dados de demonstração
 
 ## Tecnologias
 
-- PHP 8.2+
-- Laravel 12
-- MySQL
-- Blade
-- Tailwind CSS
-- Alpine.js
-- Lucide Icons
-- Laravel Sanctum
-- Vite
+| Camada | Tecnologias |
+| --- | --- |
+| Back-end | PHP 8.2+, Laravel 12, Laravel Sanctum |
+| Banco de dados | MySQL |
+| Front-end web | Blade, Tailwind CSS, Alpine.js, Lucide Icons, Vite |
+| Mobile | Android nativo, Kotlin, Room Database, Retrofit |
+| Qualidade | PHPUnit, Gradle, Git |
 
 ## Estrutura
 
 ```text
 backend/   Aplicação Laravel, interface web e API REST
+mobile/    Aplicativo Android nativo em Kotlin
 docs/      Documentação técnica e ordem de desenvolvimento
 ```
 
@@ -52,7 +66,7 @@ Todos usam a senha `password`.
 
 | Perfil | E-mail | Acesso principal |
 | --- | --- | --- |
-| Administrador | `admin@counter.test` | Cadastros, contagens, divergências e aprovação de ajustes |
+| Administrador | `admin@counter.test` | Cadastros, contagens, divergências, relatórios e aprovação de ajustes |
 | Estoquista | `estoquista@counter.test` | Produtos e movimentações de estoque |
 | Contador | `contador@counter.test` | Contagens e sincronização de itens contados |
 
@@ -85,7 +99,7 @@ php artisan migrate
 php artisan db:seed
 ```
 
-Suba a aplicação:
+Suba a aplicação web:
 
 ```powershell
 php artisan serve
@@ -98,12 +112,35 @@ Acesse:
 http://127.0.0.1:8000
 ```
 
+## Mobile
+
+O aplicativo Android está na pasta `mobile/`.
+
+Para compilar:
+
+```powershell
+cd mobile
+.\gradlew.bat assembleDebug
+```
+
+No emulador Android, a API local deve ser acessada por:
+
+```text
+http://10.0.2.2:8000
+```
+
 ## Verificações
 
 ```powershell
+cd backend
 php artisan test
 npm run build
 composer audit
 npm audit --audit-level=critical
 git diff --check
+```
+
+```powershell
+cd mobile
+.\gradlew.bat assembleDebug
 ```
